@@ -28,6 +28,8 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html { height: 100%; }
+
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
@@ -112,6 +114,13 @@
     display: flex;
     flex: 1;
     overflow: hidden;
+    min-height: 0;
+  }
+
+  .map-wrapper {
+    flex: 1;
+    position: relative;
+    min-height: 0;
   }
 
   /* ── SIDEBAR ── */
@@ -265,9 +274,9 @@
 
   /* ── MAP ── */
   #map {
-    flex: 1;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
     z-index: 1;
-    min-height: 400px;
   }
 
   /* ── POPUP ── */
@@ -470,7 +479,7 @@
     <div class="beach-list" id="beach-list"></div>
   </div>
 
-  <div style="flex:1; position:relative;">
+  <div class="map-wrapper">
     <div id="map"></div>
     <div class="map-legend">
       <div class="legend-title">Beaches</div>
