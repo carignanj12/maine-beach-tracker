@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maine Beach Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root {
+    --sand: #f5efe6;
+    --sand-dark: #e8dccb;
+    --ocean: #2a6b8a;
+    --ocean-light: #4a8fa8;
+    --ocean-dark: #1a4a63;
+    --seafoam: #5ca897;
+    --seafoam-light: #e8f5f2;
+    --driftwood: #8b7355;
+    --driftwood-light: #c4b49a;
+    --text: #2c2416;
+    --text-muted: #7a6a55;
+    --visited-color: #5ca897;
+    --unvisited-color: #d4906a;
+    --bg: #faf7f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ocean-dark);
+    color: white;
+    padding: 0 24px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    border-bottom: 3px solid var(--ocean-light);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .header-wave {
+    font-size: 18px;
+    opacity: 0.7;
+  }
+
+  .header-subtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .progress-summary {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .progress-text span {
+    font-weight: 500;
+    color: #a8ddd0;
+  }
+
+  .progress-bar-outer {
+    width: 120px;
+    height: 5px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  #progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #5ca897, #a8ddd0);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: var(--bg);
+    border-right: 1px solid var(--sand-dark);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-controls {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--sand-dark);
+    background: white;
+  }
+
+  .search-box {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--sand-dark);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--bg);
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-box:focus {
+    border-color: var(--ocean-light);
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 6px;
+  }
+
+  .filter-tab {
+    flex: 1;
+    padding: 5px 0;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--sand-dark);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .filter-tab.active {
+    background: var(--ocean-dark);
+    border-color: var(--ocean-dark);
+    color: white;
+  }
+
+  .beach-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 6px 0;
+  }
+
+  .beach-list::-webkit-scrollbar { width: 4px; }
+  .beach-list::-webkit-scrollbar-track { background: transparent; }
+  .beach-list::-webkit-scrollbar-thumb { background: var(--sand-dark); border-radius: 4px; }
+
+  .beach-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--sand-dark);
+    position: relative;
+  }
+
+  .beach-item:hover { background: var(--sand); }
+  .beach-item.active { background: var(--seafoam-light); }
+
+  .check-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--driftwood-light);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: white;
+  }
+
+  .check-circle.checked {
+    background: var(--visited-color);
+    border-color: var(--visited-color);
+  }
+
+  .checkmark {
+    display: none;
+    width: 10px;
+    height: 6px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+
+  .check-circle.checked .checkmark { display: block; }
+
+  .beach-info { flex: 1; min-width: 0; }
+
+  .beach-name {
+    font-size: 13.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+
+  .beach-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .type-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .type-dot.sandy { background: var(--unvisited-color); }
+  .type-dot.rocky { background: var(--ocean-light); }
+  .type-dot.mixed { background: var(--driftwood); }
+
+  .no-results {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* ── MAP ── */
+  #map {
+    flex: 1;
+    z-index: 1;
+  }
+
+  /* ── POPUP ── */
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12) !important;
+    border: 1px solid var(--sand-dark) !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+
+  .leaflet-popup-content {
+    margin: 0 !important;
+    width: 220px !important;
+  }
+
+  .popup-inner {
+    padding: 14px 16px 4px;
+  }
+
+  .popup-beach-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ocean-dark);
+    line-height: 1.3;
+  }
+
+  .popup-town {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .popup-tags {
+    display: flex;
+    gap: 5px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .popup-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.04em;
+  }
+
+  .popup-tag.sandy { background: #fde8d8; color: #9b5c35; }
+  .popup-tag.rocky { background: #d8edf5; color: #2a6b8a; }
+  .popup-tag.mixed { background: #ede8e0; color: #6b5535; }
+  .popup-tag.state-park { background: #e8f5f2; color: #2e7862; }
+  .popup-tag.national-park { background: #e8f0e8; color: #2e5c2e; }
+
+  .popup-notes {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  .popup-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .popup-btn.mark-visited {
+    background: var(--visited-color);
+    color: white;
+  }
+
+  .popup-btn.mark-visited:hover { background: #4a9485; }
+
+  .popup-btn.mark-unvisited {
+    background: var(--sand);
+    color: var(--text-muted);
+  }
+
+  .popup-btn.mark-unvisited:hover { background: var(--sand-dark); }
+
+  /* ── CUSTOM MARKERS ── */
+  .marker-pin {
+    width: 28px;
+    height: 28px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2.5px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .marker-pin.visited { background: var(--visited-color); }
+  .marker-pin.unvisited { background: var(--unvisited-color); }
+
+  /* ── LEGEND ── */
+  .map-legend {
+    position: absolute;
+    bottom: 24px;
+    right: 12px;
+    z-index: 1000;
+    background: white;
+    border: 1px solid var(--sand-dark);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .legend-title {
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  .legend-dot.visited { background: var(--visited-color); }
+  .legend-dot.unvisited { background: var(--unvisited-color); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ocean-dark);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 9999;
+    white-space: nowrap;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Maine Beach Tracker</h1>
+    <span class="header-wave">🌊</span>
+    <span class="header-subtitle">Summer bucket list</span>
+  </div>
+  <div class="progress-summary">
+    <div class="progress-text">Visited <span id="visited-count">0</span> of <span id="total-count">0</span></div>
+    <div class="progress-bar-outer">
+      <div id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-controls">
+      <input class="search-box" type="text" id="search" placeholder="Search beaches..." autocomplete="off"/>
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="unvisited">To Visit</button>
+        <button class="filter-tab" data-filter="visited">Visited</button>
+      </div>
+    </div>
+    <div class="beach-list" id="beach-list"></div>
+  </div>
+
+  <div style="flex:1; position:relative;">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-title">Beaches</div>
+      <div class="legend-row"><div class="legend-dot visited"></div> Visited</div>
+      <div class="legend-row"><div class="legend-dot unvisited"></div> Not yet</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const BEACHES = [
+  { id: 1,  name: "Ogunquit Beach",          town: "Ogunquit",        type: "sandy",  tags: ["state-park"],    lat: 43.2547, lng: -70.5952, notes: "3.5 miles of barrier beach peninsula, one of the most beautiful in New England. Trolley access from town." },
+  { id: 2,  name: "Old Orchard Beach",        town: "Old Orchard Beach",type:"sandy",  tags: [],                lat: 43.5165, lng: -70.3739, notes: "7 miles of sandy shore with a classic pier, boardwalk, amusement park, and great boogie board waves." },
+  { id: 3,  name: "Popham Beach",             town: "Phippsburg",      type: "sandy",  tags: ["state-park"],    lat: 43.7415, lng: -69.7890, notes: "Stunning sandbar exposed at low tide. Views of nearby islands. One of Maine's finest state park beaches." },
+  { id: 4,  name: "Pemaquid Beach",           town: "Bristol",         type: "sandy",  tags: ["state-park"],    lat: 43.8616, lng: -69.5247, notes: "Gorgeous crescent of fine white sand near the iconic Pemaquid Point Lighthouse. Great for families." },
+  { id: 5,  name: "Crescent Beach",           town: "Cape Elizabeth",  type: "sandy",  tags: ["state-park"],    lat: 43.5459, lng: -70.2356, notes: "A mile-long curved beach just south of Portland. Tide pools at Kettle Cove next door. Portland Head Light nearby." },
+  { id: 6,  name: "Sand Beach (Acadia)",      town: "Bar Harbor",      type: "mixed",  tags: ["national-park"], lat: 44.3290, lng: -68.1848, notes: "The only true sand beach in Acadia — made partly of shell fragments. Dramatic cliffs and cold water. Take the Island Explorer bus." },
+  { id: 7,  name: "Scarborough Beach",        town: "Scarborough",     type: "sandy",  tags: ["state-park"],    lat: 43.5503, lng: -70.3531, notes: "Wide open beach with lifeguards and some of the best surf in Maine. Water can reach the high 60s in summer." },
+  { id: 8,  name: "Goose Rocks Beach",        town: "Kennebunkport",   type: "sandy",  tags: [],                lat: 43.4082, lng: -70.4365, notes: "Very soft sand, shallow calm water — great for walking and families with small kids. Low-key and quiet." },
+  { id: 9,  name: "Wells Beach",              town: "Wells",           type: "sandy",  tags: [],                lat: 43.3231, lng: -70.5716, notes: "Long sandy beach with sea grass dunes and uninterrupted shoreline at low tide. Antique shops nearby." },
+  { id: 10, name: "Higgins Beach",            town: "Scarborough",     type: "sandy",  tags: [],                lat: 43.5659, lng: -70.2907, notes: "Beloved local beach, good for surfing and kayaking. Also known for striped bass fishing at the inlet." },
+  { id: 11, name: "East End Beach",           town: "Portland",        type: "rocky",  tags: [],                lat: 43.6624, lng: -70.2395, notes: "Small urban beach on the Portland peninsula with Eastern Prom views, food trucks, kayak rentals, and dog-friendly vibe." },
+  { id: 12, name: "Roque Bluffs",             town: "Roque Bluffs",    type: "mixed",  tags: ["state-park"],    lat: 44.6135, lng: -67.4876, notes: "Remote Downeast gem with both a freshwater pond and the ocean side by side. Pebble shore with wild, quiet scenery." },
+  { id: 13, name: "Pine Point Beach",         town: "Scarborough",     type: "sandy",  tags: [],                lat: 43.5442, lng: -70.3767, notes: "Quieter alternative to OOB with kayaking and a local vibe. Good surf break at the inlet." },
+  { id: 14, name: "Gooch's Beach",            town: "Kennebunk",       type: "sandy",  tags: [],                lat: 43.3609, lng: -70.4796, notes: "Largest section of Kennebunk Beach — talcum-powder sand along Beach Avenue. Iconic Maine beach town feel." },
+  { id: 15, name: "York Beach (Short Sands)", town: "York",            type: "sandy",  tags: [],                lat: 43.1721, lng: -70.6084, notes: "Charming, compact beach in the heart of York Beach village. Amusements, ice cream, and The Goldenrod nearby." },
+  { id: 16, name: "Long Sands Beach",         town: "York",            type: "sandy",  tags: [],                lat: 43.1613, lng: -70.6207, notes: "Over a mile of open sandy beach with gentle waves — one of the best for families in the Yorks." },
+  { id: 17, name: "Schoodic Beach",           town: "Winter Harbor",   type: "rocky",  tags: ["national-park"], lat: 44.3336, lng: -68.0572, notes: "Quiet Acadia unit on the mainland side — much less crowded. Stunning rocky coastline and tide pools." },
+  { id: 18, name: "Reid State Park Beach",    town: "Georgetown",      type: "mixed",  tags: ["state-park"],    lat: 43.7748, lng: -69.7317, notes: "Half-mile lagoon beach plus open ocean strand. Natural lazy river at low tide. Stunning turquoise water." },
+  { id: 19, name: "Footbridge Beach",         town: "Ogunquit",        type: "sandy",  tags: [],                lat: 43.2653, lng: -70.5892, notes: "Less crowded northern end of the Ogunquit barrier beach, accessed by a footbridge. Snack bar on site." },
+  { id: 20, name: "Drake's Island Beach",     town: "Wells",           type: "sandy",  tags: [],                lat: 43.3391, lng: -70.5686, notes: "Quiet, tide-pool-filled Wells beach. Great for leisurely walks and crab spotting with kids." },
+];
+
+// ── STATE ──
+let visited = JSON.parse(localStorage.getItem('maine-beach-visited') || '{}');
+let activeFilter = 'all';
+let searchQuery = '';
+let activePopupId = null;
+let markers = {};
+let map;
+
+function saveVisited() {
+  localStorage.setItem('maine-beach-visited', JSON.stringify(visited));
+}
+
+function isVisited(id) { return !!visited[id]; }
+
+function toggleVisited(id) {
+  if (visited[id]) {
+    delete visited[id];
+  } else {
+    visited[id] = true;
+  }
+  saveVisited();
+  updateAll(id);
+  showToast(visited[id] ? '🌊 Marked as visited!' : 'Removed from visited');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── HEADER PROGRESS ──
+function updateProgress() {
+  const total = BEACHES.length;
+  const done = Object.keys(visited).length;
+  document.getElementById('visited-count').textContent = done;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+}
+
+// ── SIDEBAR ──
+function getFilteredBeaches() {
+  return BEACHES.filter(b => {
+    const matchSearch = b.name.toLowerCase().includes(searchQuery) || b.town.toLowerCase().includes(searchQuery);
+    const matchFilter = activeFilter === 'all' || (activeFilter === 'visited' && isVisited(b.id)) || (activeFilter === 'unvisited' && !isVisited(b.id));
+    return matchSearch && matchFilter;
+  });
+}
+
+function renderList() {
+  const list = document.getElementById('beach-list');
+  const beaches = getFilteredBeaches();
+  if (beaches.length === 0) {
+    list.innerHTML = '<div class="no-results">No beaches found.</div>';
+    return;
+  }
+  list.innerHTML = beaches.map(b => `
+    <div class="beach-item${activePopupId === b.id ? ' active' : ''}" data-id="${b.id}" onclick="focusBeach(${b.id})">
+      <div class="check-circle${isVisited(b.id) ? ' checked' : ''}" onclick="event.stopPropagation(); toggleVisited(${b.id})">
+        <div class="checkmark"></div>
+      </div>
+      <div class="beach-info">
+        <div class="beach-name">${b.name}</div>
+        <div class="beach-meta">${b.town} &middot; ${b.type}</div>
+      </div>
+      <div class="type-dot ${b.type}"></div>
+    </div>
+  `).join('');
+}
+
+// ── MAP MARKERS ──
+function makeIcon(beach) {
+  const color = isVisited(beach.id) ? '#5ca897' : '#d4906a';
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:26px; height:26px;
+      background:${color};
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      border:2.5px solid white;
+      box-shadow:0 2px 8px rgba(0,0,0,0.3);
+      cursor:pointer;
+    "></div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 26],
+    popupAnchor: [0, -28],
+  });
+}
+
+function popupHtml(beach) {
+  const v = isVisited(beach.id);
+  const tagHtml = beach.tags.map(t => `<span class="popup-tag ${t}">${t.replace('-', ' ')}</span>`).join('');
+  return `
+    <div class="popup-inner">
+      <div class="popup-beach-name">${beach.name}</div>
+      <div class="popup-town">${beach.town}</div>
+      <div class="popup-tags">
+        <span class="popup-tag ${beach.type}">${beach.type}</span>
+        ${tagHtml}
+      </div>
+      <div class="popup-notes">${beach.notes}</div>
+    </div>
+    <button class="popup-btn ${v ? 'mark-unvisited' : 'mark-visited'}" onclick="toggleVisited(${beach.id})">
+      ${v ? '✓ Visited — click to unmark' : '+ Mark as visited'}
+    </button>
+  `;
+}
+
+function initMarkers() {
+  BEACHES.forEach(b => {
+    const marker = L.marker([b.lat, b.lng], { icon: makeIcon(b) })
+      .bindPopup(popupHtml(b), { maxWidth: 220, minWidth: 220 })
+      .addTo(map);
+
+    marker.on('popupopen', () => {
+      activePopupId = b.id;
+      renderList();
+      scrollListToBeach(b.id);
+    });
+
+    marker.on('popupclose', () => {
+      if (activePopupId === b.id) activePopupId = null;
+      renderList();
+    });
+
+    markers[b.id] = marker;
+  });
+}
+
+function refreshMarker(id) {
+  const b = BEACHES.find(x => x.id === id);
+  if (!b) return;
+  const marker = markers[id];
+  marker.setIcon(makeIcon(b));
+  if (marker.isPopupOpen()) {
+    marker.setPopupContent(popupHtml(b));
+  }
+}
+
+function focusBeach(id) {
+  activePopupId = id;
+  const b = BEACHES.find(x => x.id === id);
+  map.setView([b.lat, b.lng], Math.max(map.getZoom(), 11), { animate: true });
+  markers[id].openPopup();
+  renderList();
+}
+
+function scrollListToBeach(id) {
+  const el = document.querySelector(`.beach-item[data-id="${id}"]`);
+  if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function updateAll(id) {
+  updateProgress();
+  renderList();
+  refreshMarker(id);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  map = L.map('map', {
+    center: [44.1, -69.3],
+    zoom: 8,
+    zoomControl: true,
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
+    maxZoom: 18,
+  }).addTo(map);
+
+  initMarkers();
+  updateProgress();
+  renderList();
+
+  // filter tabs
+  document.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderList();
+    });
+  });
+
+  // search
+  document.getElementById('search').addEventListener('input', e => {
+    searchQuery = e.target.value.toLowerCase();
+    renderList();
+  });
+});
+</script>
+</body>
+</html>
