@@ -3,38 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maine Beach Tracker</title>
+<title>Aadya & Joe's Beach Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root {
-    --sand: #f5efe6;
-    --sand-dark: #e8dccb;
-    --ocean: #2a6b8a;
-    --ocean-light: #4a8fa8;
-    --ocean-dark: #1a4a63;
-    --seafoam: #5ca897;
-    --seafoam-light: #e8f5f2;
-    --driftwood: #8b7355;
-    --driftwood-light: #c4b49a;
-    --text: #2c2416;
-    --text-muted: #7a6a55;
-    --visited-color: #5ca897;
-    --unvisited-color: #d4906a;
-    --bg: #faf7f2;
+    --forest:        #1e3a2f;
+    --forest-mid:    #2d5443;
+    --forest-light:  #3d6b55;
+    --moss:          #5a7a5e;
+    --sage:          #8fad8f;
+    --fog:           #c8d4c4;
+    --cream:         #f7f3ec;
+    --cream-dark:    #ede7db;
+    --cream-hover:   #e6dfd4;
+    --text:          #1a2e1e;
+    --text-muted:    #6b7f6b;
+    --accent:        #c4a882;
+    --accent-light:  #f0e8d8;
+    --visited:       #3d6b55;
+    --unvisited:     #c4a882;
+    --active-bg:     #e8f0e5;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { height: 100%; }
+  html, body { height: 100%; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
     color: var(--text);
-    height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -42,74 +42,174 @@
 
   /* ── HEADER ── */
   header {
-    background: var(--ocean-dark);
-    color: white;
-    padding: 0 24px;
-    height: 58px;
+    background: var(--forest);
+    height: 64px;
+    display: flex;
+    align-items: stretch;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg, transparent, transparent 72px,
+      rgba(255,255,255,0.025) 72px, rgba(255,255,255,0.025) 73px
+    );
+    pointer-events: none;
+  }
+
+  .header-brand {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-    border-bottom: 3px solid var(--ocean-light);
+    padding: 0 24px;
+    border-right: 1px solid var(--forest-light);
   }
 
-  .header-left {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
+  .header-brand h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 21px;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    line-height: 1.2;
   }
 
-  header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-
-  .header-wave {
-    font-size: 18px;
-    opacity: 0.7;
+  .header-brand h1 em {
+    font-style: italic;
+    color: var(--accent);
   }
 
   .header-subtitle {
-    font-size: 12px;
-    color: rgba(255,255,255,0.55);
-    letter-spacing: 0.08em;
+    display: block;
+    font-size: 9px;
+    color: var(--sage);
+    letter-spacing: 0.2em;
     text-transform: uppercase;
+    font-weight: 400;
+    margin-top: 3px;
   }
 
-  .progress-summary {
+  /* ── NAV TABS ── */
+  .header-nav {
     display: flex;
     align-items: center;
-    gap: 16px;
+    padding: 0 16px;
+    gap: 3px;
+    border-right: 1px solid var(--forest-light);
   }
 
-  .progress-text {
-    font-size: 13px;
-    color: rgba(255,255,255,0.8);
-  }
-
-  .progress-text span {
+  .nav-tab {
+    padding: 6px 14px;
+    font-size: 10px;
     font-weight: 500;
-    color: #a8ddd0;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sage);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.18s;
+    border: 1px solid transparent;
+    font-family: 'Jost', sans-serif;
+    background: none;
+  }
+
+  .nav-tab:hover { color: var(--cream); }
+
+  .nav-tab.active {
+    color: var(--cream);
+    background: var(--forest-mid);
+    border-color: var(--forest-light);
+  }
+
+  .nav-tab.disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .nav-soon {
+    font-size: 8px;
+    vertical-align: super;
+    margin-left: 2px;
+    opacity: 0.7;
+  }
+
+  /* ── PROGRESS ── */
+  .header-progress {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto;
+    padding: 0 24px;
+  }
+
+  .progress-nums {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+
+  .progress-big {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+  }
+
+  .progress-sep {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    color: var(--forest-light);
+    font-weight: 300;
+  }
+
+  .progress-total {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--sage);
+  }
+
+  .progress-label {
+    font-size: 9px;
+    color: var(--sage);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .progress-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 110px;
   }
 
   .progress-bar-outer {
-    width: 120px;
-    height: 5px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 99px;
+    height: 3px;
+    background: var(--forest-light);
     overflow: hidden;
   }
 
   #progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #5ca897, #a8ddd0);
-    border-radius: 99px;
-    transition: width 0.4s ease;
+    background: linear-gradient(90deg, var(--accent), #e0c89a);
+    transition: width 0.5s ease;
   }
 
-  /* ── MAIN LAYOUT ── */
+  .progress-pct {
+    font-size: 9px;
+    color: var(--sage);
+    letter-spacing: 0.1em;
+    text-align: right;
+  }
+
+  /* ── MAIN ── */
   .main {
     display: flex;
     flex: 1;
@@ -117,121 +217,120 @@
     min-height: 0;
   }
 
-  .map-wrapper {
-    flex: 1;
-    position: relative;
-    min-height: 0;
-  }
-
   /* ── SIDEBAR ── */
   .sidebar {
-    width: 300px;
-    min-width: 300px;
-    background: var(--bg);
-    border-right: 1px solid var(--sand-dark);
+    width: 292px;
+    min-width: 292px;
+    background: var(--cream);
+    border-right: 1px solid var(--cream-dark);
     display: flex;
     flex-direction: column;
     overflow: hidden;
   }
 
   .sidebar-controls {
-    padding: 14px 16px 10px;
-    border-bottom: 1px solid var(--sand-dark);
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--cream-dark);
     background: white;
   }
 
   .search-box {
     width: 100%;
     padding: 8px 12px;
-    border: 1px solid var(--sand-dark);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
+    border: 1px solid var(--cream-dark);
+    border-radius: 5px;
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
     color: var(--text);
-    background: var(--bg);
+    background: var(--cream);
     margin-bottom: 10px;
     outline: none;
     transition: border-color 0.2s;
   }
 
-  .search-box:focus {
-    border-color: var(--ocean-light);
-  }
+  .search-box:focus { border-color: var(--moss); }
+  .search-box::placeholder { color: var(--text-muted); }
 
   .filter-tabs {
     display: flex;
-    gap: 6px;
+    gap: 5px;
   }
 
   .filter-tab {
     flex: 1;
     padding: 5px 0;
-    font-size: 12px;
-    font-family: 'DM Sans', sans-serif;
-    border: 1px solid var(--sand-dark);
-    border-radius: 6px;
+    font-size: 10px;
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--cream-dark);
+    border-radius: 4px;
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.02em;
+    transition: all 0.18s;
   }
 
   .filter-tab.active {
-    background: var(--ocean-dark);
-    border-color: var(--ocean-dark);
-    color: white;
+    background: var(--forest);
+    border-color: var(--forest);
+    color: var(--cream);
   }
 
   .beach-list {
     overflow-y: auto;
     flex: 1;
-    padding: 6px 0;
   }
 
-  .beach-list::-webkit-scrollbar { width: 4px; }
+  .beach-list::-webkit-scrollbar { width: 3px; }
   .beach-list::-webkit-scrollbar-track { background: transparent; }
-  .beach-list::-webkit-scrollbar-thumb { background: var(--sand-dark); border-radius: 4px; }
+  .beach-list::-webkit-scrollbar-thumb { background: var(--fog); border-radius: 3px; }
 
   .beach-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
+    gap: 11px;
+    padding: 9px 16px;
     cursor: pointer;
-    transition: background 0.15s;
-    border-bottom: 1px solid var(--sand-dark);
+    transition: background 0.12s;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
     position: relative;
   }
 
-  .beach-item:hover { background: var(--sand); }
-  .beach-item.active { background: var(--seafoam-light); }
+  .beach-item:hover { background: var(--cream-hover); }
+
+  .beach-item.active {
+    background: var(--active-bg);
+    border-left: 3px solid var(--forest);
+    padding-left: 13px;
+  }
 
   .check-circle {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    border: 2px solid var(--driftwood-light);
+    border: 1.5px solid var(--fog);
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.25s;
+    transition: all 0.22s;
     background: white;
   }
 
   .check-circle.checked {
-    background: var(--visited-color);
-    border-color: var(--visited-color);
+    background: var(--visited);
+    border-color: var(--visited);
   }
 
   .checkmark {
     display: none;
-    width: 10px;
-    height: 6px;
-    border-left: 2px solid white;
-    border-bottom: 2px solid white;
+    width: 8px;
+    height: 5px;
+    border-left: 1.5px solid white;
+    border-bottom: 1.5px solid white;
     transform: rotate(-45deg) translateY(-1px);
   }
 
@@ -240,18 +339,21 @@
   .beach-info { flex: 1; min-width: 0; }
 
   .beach-name {
-    font-size: 13.5px;
-    font-weight: 500;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--text);
+    line-height: 1.2;
   }
 
   .beach-meta {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-muted);
     margin-top: 1px;
+    letter-spacing: 0.02em;
   }
 
   .type-dot {
@@ -261,18 +363,26 @@
     flex-shrink: 0;
   }
 
-  .type-dot.sandy { background: var(--unvisited-color); }
-  .type-dot.rocky { background: var(--ocean-light); }
-  .type-dot.mixed { background: var(--driftwood); }
+  .type-dot.sandy { background: var(--accent); }
+  .type-dot.rocky { background: var(--moss); }
+  .type-dot.mixed { background: var(--fog); }
 
   .no-results {
     padding: 32px 16px;
     text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
     color: var(--text-muted);
-    font-size: 13px;
+    font-size: 15px;
   }
 
   /* ── MAP ── */
+  .map-wrapper {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+  }
+
   #map {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -281,105 +391,95 @@
 
   /* ── POPUP ── */
   .leaflet-popup-content-wrapper {
-    border-radius: 12px !important;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.12) !important;
-    border: 1px solid var(--sand-dark) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 6px 28px rgba(30,58,47,0.15) !important;
+    border: 1px solid var(--cream-dark) !important;
     padding: 0 !important;
     overflow: hidden;
+    font-family: 'Jost', sans-serif !important;
   }
 
   .leaflet-popup-content {
     margin: 0 !important;
-    width: 220px !important;
+    width: 230px !important;
   }
 
-  .popup-inner {
-    padding: 14px 16px 4px;
+  .popup-header {
+    background: var(--forest);
+    padding: 12px 14px 10px;
   }
 
   .popup-beach-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ocean-dark);
-    line-height: 1.3;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--cream);
+    line-height: 1.2;
   }
 
   .popup-town {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 2px;
+    font-size: 10px;
+    color: var(--sage);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .popup-body {
+    padding: 10px 14px 4px;
+    background: white;
   }
 
   .popup-tags {
     display: flex;
     gap: 5px;
-    margin-top: 8px;
     flex-wrap: wrap;
+    margin-bottom: 8px;
   }
 
   .popup-tag {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 99px;
-    letter-spacing: 0.04em;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
   }
 
-  .popup-tag.sandy { background: #fde8d8; color: #9b5c35; }
-  .popup-tag.rocky { background: #d8edf5; color: #2a6b8a; }
-  .popup-tag.mixed { background: #ede8e0; color: #6b5535; }
-  .popup-tag.state-park { background: #e8f5f2; color: #2e7862; }
-  .popup-tag.national-park { background: #e8f0e8; color: #2e5c2e; }
+  .popup-tag.sandy         { background: var(--accent-light); color: #7a5c2e; }
+  .popup-tag.rocky         { background: #dce8e0;              color: #2d5443; }
+  .popup-tag.mixed         { background: #e8e4dc;              color: #5a4a32; }
+  .popup-tag.state-park    { background: #e8f0e5;              color: #2d5443; }
+  .popup-tag.national-park { background: #d8e8d0;              color: #245030; }
 
   .popup-notes {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--text-muted);
-    margin-top: 8px;
-    line-height: 1.5;
+    margin-top: 4px;
+    line-height: 1.55;
+    margin-bottom: 2px;
   }
 
   .popup-btn {
     display: block;
     width: 100%;
-    margin-top: 12px;
+    margin-top: 10px;
     padding: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
     font-weight: 500;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.02em;
+    transition: all 0.18s;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
-  .popup-btn.mark-visited {
-    background: var(--visited-color);
-    color: white;
-  }
-
-  .popup-btn.mark-visited:hover { background: #4a9485; }
-
-  .popup-btn.mark-unvisited {
-    background: var(--sand);
-    color: var(--text-muted);
-  }
-
-  .popup-btn.mark-unvisited:hover { background: var(--sand-dark); }
-
-  /* ── CUSTOM MARKERS ── */
-  .marker-pin {
-    width: 28px;
-    height: 28px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    border: 2.5px solid white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-
-  .marker-pin.visited { background: var(--visited-color); }
-  .marker-pin.unvisited { background: var(--unvisited-color); }
+  .popup-btn.mark-visited       { background: var(--forest);     color: var(--cream); }
+  .popup-btn.mark-visited:hover { background: var(--forest-mid); }
+  .popup-btn.mark-unvisited     { background: var(--cream-dark); color: var(--text-muted); }
+  .popup-btn.mark-unvisited:hover { background: var(--cream-hover); }
 
   /* ── LEGEND ── */
   .map-legend {
@@ -387,56 +487,62 @@
     bottom: 24px;
     right: 12px;
     z-index: 1000;
-    background: white;
-    border: 1px solid var(--sand-dark);
-    border-radius: 10px;
+    background: rgba(247,243,236,0.94);
+    border: 1px solid var(--cream-dark);
+    border-radius: 6px;
     padding: 10px 14px;
-    font-size: 12px;
-    color: var(--text-muted);
     pointer-events: none;
   }
 
   .legend-title {
+    font-size: 8px;
     font-weight: 500;
-    color: var(--text);
-    margin-bottom: 6px;
-    font-size: 11px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 7px;
   }
 
   .legend-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'Jost', sans-serif;
   }
+
+  .legend-row:last-child { margin-bottom: 0; }
 
   .legend-dot {
-    width: 12px;
-    height: 12px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     border: 2px solid white;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+    flex-shrink: 0;
   }
 
-  .legend-dot.visited { background: var(--visited-color); }
-  .legend-dot.unvisited { background: var(--unvisited-color); }
+  .legend-dot.visited   { background: var(--visited); }
+  .legend-dot.unvisited { background: var(--unvisited); }
 
   /* ── TOAST ── */
   #toast {
     position: fixed;
-    bottom: 80px;
+    bottom: 72px;
     left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--ocean-dark);
-    color: white;
-    padding: 10px 20px;
+    transform: translateX(-50%) translateY(16px);
+    background: var(--forest);
+    color: var(--cream);
+    padding: 9px 20px;
     border-radius: 99px;
-    font-size: 13px;
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
     font-weight: 500;
+    letter-spacing: 0.04em;
     opacity: 0;
-    transition: all 0.3s;
+    transition: all 0.28s ease;
     pointer-events: none;
     z-index: 9999;
     white-space: nowrap;
@@ -447,21 +553,100 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  .hidden { display: none; }
+  /* ── COMING SOON OVERLAY ── */
+  .cs-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30,58,47,0.5);
+    z-index: 5000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cs-overlay.show { display: flex; }
+
+  .cs-card {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 40px 48px;
+    text-align: center;
+    max-width: 340px;
+  }
+
+  .cs-icon { font-size: 34px; margin-bottom: 12px; }
+
+  .cs-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--forest);
+    margin-bottom: 8px;
+  }
+
+  .cs-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+
+  .cs-close {
+    padding: 9px 26px;
+    background: var(--forest);
+    color: var(--cream);
+    border: none;
+    border-radius: 5px;
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-left">
-    <h1>Aadya and Joe's Maine Beach Tracker</h1>
-    <span class="header-wave">🌊</span>
-    <span class="header-subtitle">Summer bucket list</span>
+<!-- Coming soon modal -->
+<div class="cs-overlay" id="cs-overlay" onclick="csOverlayClick(event)">
+  <div class="cs-card">
+    <div class="cs-icon">🌿</div>
+    <div class="cs-title">Coming soon</div>
+    <div class="cs-body">The <strong id="cs-feature">Journal</strong> feature is on its way — photo uploads, visit memories, and your personal beach diary. Check back later.</div>
+    <button class="cs-close" onclick="document.getElementById('cs-overlay').classList.remove('show')">Got it</button>
   </div>
-  <div class="progress-summary">
-    <div class="progress-text">Visited <span id="visited-count">0</span> of <span id="total-count">0</span></div>
-    <div class="progress-bar-outer">
-      <div id="progress-fill" style="width:0%"></div>
+</div>
+
+<header>
+  <div class="header-brand">
+    <div>
+      <h1>Aadya <em>&amp;</em> Joe's <em>Beach Tracker</em></h1>
+      <span class="header-subtitle">Maine · Summer 2025</span>
+    </div>
+  </div>
+
+  <div class="header-nav">
+    <button class="nav-tab active">Map</button>
+    <button class="nav-tab disabled" onclick="showCS('Journal')">Journal <span class="nav-soon">✦</span></button>
+    <button class="nav-tab disabled" onclick="showCS('Gallery')">Gallery <span class="nav-soon">✦</span></button>
+  </div>
+
+  <div class="header-progress">
+    <div>
+      <div class="progress-nums">
+        <span class="progress-big" id="visited-count">0</span>
+        <span class="progress-sep">/</span>
+        <span class="progress-total" id="total-count">0</span>
+      </div>
+      <div class="progress-label">beaches visited</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-outer">
+        <div id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="progress-pct" id="progress-pct">0%</div>
     </div>
   </div>
 </header>
@@ -469,7 +654,7 @@
 <div class="main">
   <div class="sidebar">
     <div class="sidebar-controls">
-      <input class="search-box" type="text" id="search" placeholder="Search beaches..." autocomplete="off"/>
+      <input class="search-box" type="text" id="search" placeholder="Search beaches or towns…" autocomplete="off"/>
       <div class="filter-tabs">
         <button class="filter-tab active" data-filter="all">All</button>
         <button class="filter-tab" data-filter="unvisited">To Visit</button>
@@ -483,8 +668,8 @@
     <div id="map"></div>
     <div class="map-legend">
       <div class="legend-title">Beaches</div>
-      <div class="legend-row"><div class="legend-dot visited"></div> Visited</div>
-      <div class="legend-row"><div class="legend-dot unvisited"></div> Not yet</div>
+      <div class="legend-row"><div class="legend-dot visited"></div>Visited</div>
+      <div class="legend-row"><div class="legend-dot unvisited"></div>Not yet</div>
     </div>
   </div>
 </div>
@@ -520,33 +705,16 @@ const BEACHES = [
   { id: 25, name: "Broad Cove Reserve",       town: "Cumberland",      type: "mixed",  tags: [],                lat: 43.8012, lng: -70.1534, notes: "Tranquil and often overlooked — a mix of sandy shore and green space. Great for a quiet afternoon." },
   { id: 26, name: "Sandy Point Beach",        town: "Stockton Springs", type: "sandy", tags: [],                lat: 44.4871, lng: -68.8693, notes: "Shallow, tranquil waters with expansive tidal flats — outstanding bird watching and total serenity." },
   { id: 27, name: "Ferry Beach",              town: "Scarborough",     type: "sandy",  tags: ["state-park"],    lat: 43.5428, lng: -70.3227, notes: "A quieter, wooded state park beach south of OOB with nature trails through rare tupelo trees alongside the sand." },
-  // ── PEAKS ISLAND (Casco Bay Lines, 20 min from Portland) ──
   { id: 29, name: "Cairn Beach",              town: "Peaks Island",    type: "rocky",  tags: [],                lat: 43.6558, lng: -70.1987, notes: "Peaks Island's dramatic backshore — slabs of bedrock and stacked stone cairns. Not for swimming but utterly unique. Walk the 3.7-mile island loop to get here." },
   { id: 30, name: "Sandy Beach",              town: "Peaks Island",    type: "sandy",  tags: [],                lat: 43.6601, lng: -70.1812, notes: "Peaks Island's calmer, swimmable beach. You can walk to Catnip Island at low tide. 20-minute ferry from Portland's Old Port via Casco Bay Lines." },
-
-  // ── LONG ISLAND (Casco Bay Lines, ~45 min from Portland) ──
   { id: 31, name: "South Beach (Andrews Beach)", town: "Long Island",  type: "sandy",  tags: [],                lat: 43.6385, lng: -70.1623, notes: "Wide, quiet sands with far fewer crowds than the mainland. Worth the 45-minute Casco Bay Lines ferry — bring a picnic." },
-
-  // ── GREAT CHEBEAGUE ISLAND (Casco Bay Lines, ~60 min from Portland) ──
   { id: 32, name: "Chandler's Cove Beach",    town: "Chebeague Island", type: "sandy", tags: [],                lat: 43.7178, lng: -70.1268, notes: "Pristine and breathtaking — within walking distance of the ferry dock. Chebeague also has a sandy bar to Little Chebeague at low tide. Bring food and water." },
-
-  // ── GREAT DIAMOND ISLAND (Casco Bay Lines, ~30 min from Portland) ──
   { id: 33, name: "Sea Glass Beach",          town: "Great Diamond Island", type: "rocky", tags: [],            lat: 43.6712, lng: -70.1934, notes: "Famous among locals for finding cobalt and bottle-green sea glass. Car-free island with a quiet, laid-back atmosphere." },
-
-  // ── MONHEGAN ISLAND (ferry from Port Clyde, New Harbor, or Boothbay) ──
   { id: 34, name: "Swim Beach",               town: "Monhegan Island", type: "rocky",  tags: [],                lat: 43.7641, lng: -69.3198, notes: "The main safe swimming spot on Monhegan — a pocket beach by the harbor among the lobster houses. Ferry from Port Clyde via Monhegan Boat Line." },
   { id: 35, name: "Pebble Beach",             town: "Monhegan Island", type: "rocky",  tags: [],                lat: 43.7598, lng: -69.3141, notes: "Dramatic wave-tumbled boulders and natural sea caves — artistic inspiration for painters for over a century. Stunning and wild." },
-
-  // ── SWAN'S ISLAND (Maine State Ferry from Bass Harbor, ~40 min) ──
   { id: 36, name: "Fine Sand Beach",          town: "Swan's Island",   type: "sandy",  tags: [],                lat: 44.1559, lng: -68.4753, notes: "One of the most remote and rewarding beaches in Maine. Four public beaches on the island — Fine Sand Beach is the gem. Ferry from Bass Harbor." },
-
-  // ── ISLE AU HAUT (ferry from Stonington) ──
   { id: 37, name: "Duck Harbor Beach",        town: "Isle au Haut",    type: "rocky",  tags: ["national-park"], lat: 44.0621, lng: -68.6412, notes: "Pebbly cove beach inside Acadia's remote island unit. A park ranger meets the ferry. Wild, rugged, and almost nobody here. Ferry from Stonington." },
-
-  // ── ISLESBORO (Lincolnville ferry, ~20 min) ──
   { id: 38, name: "Pendleton Point Beach",    town: "Islesboro",       type: "rocky",  tags: [],                lat: 44.2698, lng: -68.9012, notes: "Quiet rocky shore at the southern tip of Islesboro with stunning Penobscot Bay views. Short ferry from Lincolnville Beach." },
-
-  // ── GREAT CRANBERRY ISLAND (ferry from Southwest Harbor) ──
   { id: 39, name: "Whistler's Cove",          town: "Great Cranberry Island", type: "rocky", tags: [],          lat: 44.2387, lng: -68.3198, notes: "A cobble beach reached via a foot trail behind the Cranberry House. Pink Cadillac granite shoreline with Acadia views. Ferry from Southwest Harbor." },
 ];
 
@@ -565,30 +733,40 @@ function saveVisited() {
 function isVisited(id) { return !!visited[id]; }
 
 function toggleVisited(id) {
-  if (visited[id]) {
-    delete visited[id];
-  } else {
-    visited[id] = true;
-  }
+  if (visited[id]) { delete visited[id]; }
+  else { visited[id] = true; }
   saveVisited();
   updateAll(id);
-  showToast(visited[id] ? '🌊 Marked as visited!' : 'Removed from visited');
+  showToast(visited[id] ? '✓ Marked as visited' : 'Removed from visited');
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── HEADER PROGRESS ──
+function showCS(feature) {
+  document.getElementById('cs-feature').textContent = feature;
+  document.getElementById('cs-overlay').classList.add('show');
+}
+
+function csOverlayClick(e) {
+  if (e.target === document.getElementById('cs-overlay')) {
+    document.getElementById('cs-overlay').classList.remove('show');
+  }
+}
+
+// ── PROGRESS ──
 function updateProgress() {
   const total = BEACHES.length;
   const done = Object.keys(visited).length;
+  const pct = Math.round(done / total * 100);
   document.getElementById('visited-count').textContent = done;
   document.getElementById('total-count').textContent = total;
-  document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
 }
 
 // ── SIDEBAR ──
@@ -604,7 +782,7 @@ function renderList() {
   const list = document.getElementById('beach-list');
   const beaches = getFilteredBeaches();
   if (beaches.length === 0) {
-    list.innerHTML = '<div class="no-results">No beaches found.</div>';
+    list.innerHTML = '<div class="no-results">No beaches found</div>';
     return;
   }
   list.innerHTML = beaches.map(b => `
@@ -623,21 +801,21 @@ function renderList() {
 
 // ── MAP MARKERS ──
 function makeIcon(beach) {
-  const color = isVisited(beach.id) ? '#5ca897' : '#d4906a';
+  const color = isVisited(beach.id) ? '#3d6b55' : '#c4a882';
   return L.divIcon({
     className: '',
     html: `<div style="
-      width:26px; height:26px;
+      width:24px; height:24px;
       background:${color};
       border-radius:50% 50% 50% 0;
       transform:rotate(-45deg);
       border:2.5px solid white;
-      box-shadow:0 2px 8px rgba(0,0,0,0.3);
+      box-shadow:0 2px 8px rgba(30,58,47,0.35);
       cursor:pointer;
     "></div>`,
-    iconSize: [26, 26],
-    iconAnchor: [13, 26],
-    popupAnchor: [0, -28],
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -26],
   });
 }
 
@@ -645,9 +823,11 @@ function popupHtml(beach) {
   const v = isVisited(beach.id);
   const tagHtml = beach.tags.map(t => `<span class="popup-tag ${t}">${t.replace('-', ' ')}</span>`).join('');
   return `
-    <div class="popup-inner">
+    <div class="popup-header">
       <div class="popup-beach-name">${beach.name}</div>
       <div class="popup-town">${beach.town}</div>
+    </div>
+    <div class="popup-body">
       <div class="popup-tags">
         <span class="popup-tag ${beach.type}">${beach.type}</span>
         ${tagHtml}
@@ -663,7 +843,7 @@ function popupHtml(beach) {
 function initMarkers() {
   BEACHES.forEach(b => {
     const marker = L.marker([b.lat, b.lng], { icon: makeIcon(b) })
-      .bindPopup(popupHtml(b), { maxWidth: 220, minWidth: 220 })
+      .bindPopup(popupHtml(b), { maxWidth: 230, minWidth: 230 })
       .addTo(map);
 
     marker.on('popupopen', () => {
@@ -727,7 +907,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateProgress();
   renderList();
 
-  // filter tabs
   document.querySelectorAll('.filter-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
@@ -737,7 +916,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // search
   document.getElementById('search').addEventListener('input', e => {
     searchQuery = e.target.value.toLowerCase();
     renderList();
