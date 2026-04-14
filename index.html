@@ -454,7 +454,7 @@
 
 <header>
   <div class="header-left">
-    <h1>Maine Beach Tracker</h1>
+    <h1>Aadya and Joe's Maine Beach Tracker</h1>
     <span class="header-wave">🌊</span>
     <span class="header-subtitle">Summer bucket list</span>
   </div>
@@ -493,16 +493,16 @@
 
 <script>
 const BEACHES = [
-  { id: 1,  name: "Ogunquit Beach",          town: "Ogunquit",        type: "sandy",  tags: ["state-park"],    lat: 43.2547, lng: -70.5952, notes: "3.5 miles of barrier beach peninsula, one of the most beautiful in New England. Trolley access from town." },
-  { id: 2,  name: "Old Orchard Beach",        town: "Old Orchard Beach",type:"sandy",  tags: [],                lat: 43.5165, lng: -70.3739, notes: "7 miles of sandy shore with a classic pier, boardwalk, amusement park, and great boogie board waves." },
-  { id: 3,  name: "Popham Beach",             town: "Phippsburg",      type: "sandy",  tags: ["state-park"],    lat: 43.7415, lng: -69.7890, notes: "Stunning sandbar exposed at low tide. Views of nearby islands. One of Maine's finest state park beaches." },
-  { id: 4,  name: "Pemaquid Beach",           town: "Bristol",         type: "sandy",  tags: ["state-park"],    lat: 43.8616, lng: -69.5247, notes: "Gorgeous crescent of fine white sand near the iconic Pemaquid Point Lighthouse. Great for families." },
-  { id: 5,  name: "Crescent Beach",           town: "Cape Elizabeth",  type: "sandy",  tags: ["state-park"],    lat: 43.5459, lng: -70.2356, notes: "A mile-long curved beach just south of Portland. Tide pools at Kettle Cove next door. Portland Head Light nearby." },
+  { id: 1,  name: "Ogunquit Beach",           town: "Ogunquit",        type: "sandy",  tags: ["state-park"],    lat: 43.2561, lng: -70.5916, notes: "3.5 miles of barrier beach peninsula, one of the most beautiful in New England. Trolley access from town." },
+  { id: 2,  name: "Old Orchard Beach",        town: "Old Orchard Beach",type:"sandy",  tags: [],                lat: 43.5118, lng: -70.3759, notes: "7 miles of sandy shore with a classic pier, boardwalk, amusement park, and great boogie board waves." },
+  { id: 3,  name: "Popham Beach",             town: "Phippsburg",      type: "sandy",  tags: ["state-park"],    lat: 43.7374, lng: -69.7992, notes: "Stunning sandbar exposed at low tide. Views of nearby islands. One of Maine's finest state park beaches." },
+  { id: 4,  name: "Pemaquid Beach",           town: "Bristol",         type: "sandy",  tags: ["state-park"],    lat: 43.8713, lng: -69.5196, notes: "Gorgeous crescent of fine white sand near the iconic Pemaquid Point Lighthouse. Great for families." },
+  { id: 5,  name: "Crescent Beach",           town: "Cape Elizabeth",  type: "sandy",  tags: ["state-park"],    lat: 43.5635, lng: -70.2298, notes: "A mile-long curved beach just south of Portland. Tide pools at Kettle Cove next door. Portland Head Light nearby." },
   { id: 6,  name: "Sand Beach (Acadia)",      town: "Bar Harbor",      type: "mixed",  tags: ["national-park"], lat: 44.3290, lng: -68.1848, notes: "The only true sand beach in Acadia — made partly of shell fragments. Dramatic cliffs and cold water. Take the Island Explorer bus." },
-  { id: 7,  name: "Scarborough Beach",        town: "Scarborough",     type: "sandy",  tags: ["state-park"],    lat: 43.5503, lng: -70.3531, notes: "Wide open beach with lifeguards and some of the best surf in Maine. Water can reach the high 60s in summer." },
-  { id: 8,  name: "Goose Rocks Beach",        town: "Kennebunkport",   type: "sandy",  tags: [],                lat: 43.4082, lng: -70.4365, notes: "Very soft sand, shallow calm water — great for walking and families with small kids. Low-key and quiet." },
+  { id: 7,  name: "Scarborough Beach",        town: "Scarborough",     type: "sandy",  tags: ["state-park"],    lat: 43.5440, lng: -70.3092, notes: "Wide open beach with lifeguards and some of the best surf in Maine. Water can reach the high 60s in summer." },
+  { id: 8,  name: "Goose Rocks Beach",        town: "Kennebunkport",   type: "sandy",  tags: [],                lat: 43.3986, lng: -70.4105, notes: "Very soft sand, shallow calm water — great for walking and families with small kids. Low-key and quiet." },
   { id: 9,  name: "Wells Beach",              town: "Wells",           type: "sandy",  tags: [],                lat: 43.3231, lng: -70.5716, notes: "Long sandy beach with sea grass dunes and uninterrupted shoreline at low tide. Antique shops nearby." },
-  { id: 10, name: "Higgins Beach",            town: "Scarborough",     type: "sandy",  tags: [],                lat: 43.5659, lng: -70.2907, notes: "Beloved local beach, good for surfing and kayaking. Also known for striped bass fishing at the inlet." },
+  { id: 10, name: "Higgins Beach",            town: "Scarborough",     type: "sandy",  tags: [],                lat: 43.5616, lng: -70.2768, notes: "Beloved local beach, good for surfing and kayaking. Also known for striped bass fishing at the inlet." },
   { id: 11, name: "East End Beach",           town: "Portland",        type: "rocky",  tags: [],                lat: 43.6624, lng: -70.2395, notes: "Small urban beach on the Portland peninsula with Eastern Prom views, food trucks, kayak rentals, and dog-friendly vibe." },
   { id: 12, name: "Roque Bluffs",             town: "Roque Bluffs",    type: "mixed",  tags: ["state-park"],    lat: 44.6135, lng: -67.4876, notes: "Remote Downeast gem with both a freshwater pond and the ocean side by side. Pebble shore with wild, quiet scenery." },
   { id: 13, name: "Pine Point Beach",         town: "Scarborough",     type: "sandy",  tags: [],                lat: 43.5442, lng: -70.3767, notes: "Quieter alternative to OOB with kayaking and a local vibe. Good surf break at the inlet." },
@@ -513,6 +513,41 @@ const BEACHES = [
   { id: 18, name: "Reid State Park Beach",    town: "Georgetown",      type: "mixed",  tags: ["state-park"],    lat: 43.7748, lng: -69.7317, notes: "Half-mile lagoon beach plus open ocean strand. Natural lazy river at low tide. Stunning turquoise water." },
   { id: 19, name: "Footbridge Beach",         town: "Ogunquit",        type: "sandy",  tags: [],                lat: 43.2653, lng: -70.5892, notes: "Less crowded northern end of the Ogunquit barrier beach, accessed by a footbridge. Snack bar on site." },
   { id: 20, name: "Drake's Island Beach",     town: "Wells",           type: "sandy",  tags: [],                lat: 43.3391, lng: -70.5686, notes: "Quiet, tide-pool-filled Wells beach. Great for leisurely walks and crab spotting with kids." },
+  { id: 21, name: "Birch Point Beach",        town: "Owls Head",       type: "sandy",  tags: ["state-park"],    lat: 44.0821, lng: -69.0542, notes: "Quiet sandy crescent in a protected cove. A hidden gem — perfect for families and avoiding the summer crowds." },
+  { id: 22, name: "Jasper Beach",             town: "Machiasport",     type: "rocky",  tags: [],                lat: 44.6279, lng: -67.3862, notes: "Unique and unforgettable — the smooth pebbles chime and clatter with every wave. Dramatic Downeast scenery." },
+  { id: 23, name: "Seawall Beach",            town: "Phippsburg",      type: "sandy",  tags: [],                lat: 43.7289, lng: -69.8168, notes: "Undeveloped and dramatic — accessed via a pleasant hike through the woods. Great seclusion." },
+  { id: 24, name: "Sand Beach (Deer Isle)",   town: "Stonington",      type: "sandy",  tags: [],                lat: 44.1548, lng: -68.6902, notes: "A hidden local secret near Stonington with beautiful sand, trails, and classic Maine coastal views." },
+  { id: 25, name: "Broad Cove Reserve",       town: "Cumberland",      type: "mixed",  tags: [],                lat: 43.8012, lng: -70.1534, notes: "Tranquil and often overlooked — a mix of sandy shore and green space. Great for a quiet afternoon." },
+  { id: 26, name: "Sandy Point Beach",        town: "Stockton Springs", type: "sandy", tags: [],                lat: 44.4871, lng: -68.8693, notes: "Shallow, tranquil waters with expansive tidal flats — outstanding bird watching and total serenity." },
+  { id: 27, name: "Ferry Beach",              town: "Scarborough",     type: "sandy",  tags: ["state-park"],    lat: 43.5428, lng: -70.3227, notes: "A quieter, wooded state park beach south of OOB with nature trails through rare tupelo trees alongside the sand." },
+  // ── PEAKS ISLAND (Casco Bay Lines, 20 min from Portland) ──
+  { id: 29, name: "Cairn Beach",              town: "Peaks Island",    type: "rocky",  tags: [],                lat: 43.6558, lng: -70.1987, notes: "Peaks Island's dramatic backshore — slabs of bedrock and stacked stone cairns. Not for swimming but utterly unique. Walk the 3.7-mile island loop to get here." },
+  { id: 30, name: "Sandy Beach",              town: "Peaks Island",    type: "sandy",  tags: [],                lat: 43.6601, lng: -70.1812, notes: "Peaks Island's calmer, swimmable beach. You can walk to Catnip Island at low tide. 20-minute ferry from Portland's Old Port via Casco Bay Lines." },
+
+  // ── LONG ISLAND (Casco Bay Lines, ~45 min from Portland) ──
+  { id: 31, name: "South Beach (Andrews Beach)", town: "Long Island",  type: "sandy",  tags: [],                lat: 43.6385, lng: -70.1623, notes: "Wide, quiet sands with far fewer crowds than the mainland. Worth the 45-minute Casco Bay Lines ferry — bring a picnic." },
+
+  // ── GREAT CHEBEAGUE ISLAND (Casco Bay Lines, ~60 min from Portland) ──
+  { id: 32, name: "Chandler's Cove Beach",    town: "Chebeague Island", type: "sandy", tags: [],                lat: 43.7178, lng: -70.1268, notes: "Pristine and breathtaking — within walking distance of the ferry dock. Chebeague also has a sandy bar to Little Chebeague at low tide. Bring food and water." },
+
+  // ── GREAT DIAMOND ISLAND (Casco Bay Lines, ~30 min from Portland) ──
+  { id: 33, name: "Sea Glass Beach",          town: "Great Diamond Island", type: "rocky", tags: [],            lat: 43.6712, lng: -70.1934, notes: "Famous among locals for finding cobalt and bottle-green sea glass. Car-free island with a quiet, laid-back atmosphere." },
+
+  // ── MONHEGAN ISLAND (ferry from Port Clyde, New Harbor, or Boothbay) ──
+  { id: 34, name: "Swim Beach",               town: "Monhegan Island", type: "rocky",  tags: [],                lat: 43.7641, lng: -69.3198, notes: "The main safe swimming spot on Monhegan — a pocket beach by the harbor among the lobster houses. Ferry from Port Clyde via Monhegan Boat Line." },
+  { id: 35, name: "Pebble Beach",             town: "Monhegan Island", type: "rocky",  tags: [],                lat: 43.7598, lng: -69.3141, notes: "Dramatic wave-tumbled boulders and natural sea caves — artistic inspiration for painters for over a century. Stunning and wild." },
+
+  // ── SWAN'S ISLAND (Maine State Ferry from Bass Harbor, ~40 min) ──
+  { id: 36, name: "Fine Sand Beach",          town: "Swan's Island",   type: "sandy",  tags: [],                lat: 44.1559, lng: -68.4753, notes: "One of the most remote and rewarding beaches in Maine. Four public beaches on the island — Fine Sand Beach is the gem. Ferry from Bass Harbor." },
+
+  // ── ISLE AU HAUT (ferry from Stonington) ──
+  { id: 37, name: "Duck Harbor Beach",        town: "Isle au Haut",    type: "rocky",  tags: ["national-park"], lat: 44.0621, lng: -68.6412, notes: "Pebbly cove beach inside Acadia's remote island unit. A park ranger meets the ferry. Wild, rugged, and almost nobody here. Ferry from Stonington." },
+
+  // ── ISLESBORO (Lincolnville ferry, ~20 min) ──
+  { id: 38, name: "Pendleton Point Beach",    town: "Islesboro",       type: "rocky",  tags: [],                lat: 44.2698, lng: -68.9012, notes: "Quiet rocky shore at the southern tip of Islesboro with stunning Penobscot Bay views. Short ferry from Lincolnville Beach." },
+
+  // ── GREAT CRANBERRY ISLAND (ferry from Southwest Harbor) ──
+  { id: 39, name: "Whistler's Cove",          town: "Great Cranberry Island", type: "rocky", tags: [],          lat: 44.2387, lng: -68.3198, notes: "A cobble beach reached via a foot trail behind the Cranberry House. Pink Cadillac granite shoreline with Acadia views. Ferry from Southwest Harbor." },
 ];
 
 // ── STATE ──
