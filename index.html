@@ -51,22 +51,12 @@
     overflow: hidden;
   }
 
-  header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      90deg, transparent, transparent 72px,
-      rgba(255,255,255,0.025) 72px, rgba(255,255,255,0.025) 73px
-    );
-    pointer-events: none;
-  }
 
   .header-brand {
     display: flex;
     align-items: center;
     padding: 0 24px;
-    border-right: 1px solid var(--forest-light);
+    border-right: 1px solid rgba(255,255,255,0.2);
   }
 
   .header-brand h1 {
@@ -100,7 +90,7 @@
     align-items: center;
     padding: 0 16px;
     gap: 3px;
-    border-right: 1px solid var(--forest-light);
+    border-right: 1px solid rgba(255,255,255,0.2);
   }
 
   .nav-tab {
