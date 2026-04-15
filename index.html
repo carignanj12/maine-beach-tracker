@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aadya & Joe's Beach Tracker</title>
+<title>Aadi & Joe's Beach Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
@@ -209,6 +209,20 @@
     text-align: right;
   }
 
+  /* sync indicator */
+  .sync-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--sage);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .sync-dot.syncing { background: var(--accent); animation: pulse 1s infinite; }
+  .sync-dot.synced  { background: #6dbf8a; }
+  .sync-dot.error   { background: #c46060; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
   /* ── MAIN ── */
   .main {
     display: flex;
@@ -306,6 +320,17 @@
     padding-left: 13px;
   }
 
+  /* photo thumbnail in sidebar */
+  .beach-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--cream-dark);
+    cursor: pointer;
+  }
+
   .check-circle {
     width: 20px;
     height: 20px;
@@ -401,7 +426,7 @@
 
   .leaflet-popup-content {
     margin: 0 !important;
-    width: 230px !important;
+    width: 250px !important;
   }
 
   .popup-header {
@@ -425,6 +450,27 @@
     text-transform: uppercase;
     margin-top: 3px;
   }
+
+  /* photo strip inside popup */
+  .popup-photos {
+    display: flex;
+    gap: 4px;
+    padding: 8px 14px 0;
+    background: white;
+    overflow-x: auto;
+  }
+
+  .popup-photo {
+    width: 70px;
+    height: 70px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--cream-dark);
+    cursor: pointer;
+  }
+
+  .popup-photos:empty { display: none; }
 
   .popup-body {
     padding: 10px 14px 4px;
@@ -461,6 +507,19 @@
     margin-bottom: 2px;
   }
 
+  /* memory note in popup */
+  .popup-memory-note {
+    font-size: 12px;
+    color: var(--text);
+    font-style: italic;
+    line-height: 1.5;
+    padding: 8px 10px;
+    background: var(--accent-light);
+    border-radius: 4px;
+    margin-top: 8px;
+    border-left: 3px solid var(--accent);
+  }
+
   .popup-btn {
     display: block;
     width: 100%;
@@ -480,6 +539,8 @@
   .popup-btn.mark-visited:hover { background: var(--forest-mid); }
   .popup-btn.mark-unvisited     { background: var(--cream-dark); color: var(--text-muted); }
   .popup-btn.mark-unvisited:hover { background: var(--cream-hover); }
+  .popup-btn.log-memory         { background: var(--accent-light); color: var(--text); margin-top: 4px; }
+  .popup-btn.log-memory:hover   { background: #e8d8c0; }
 
   /* ── LEGEND ── */
   .map-legend {
@@ -605,9 +666,223 @@
     text-transform: uppercase;
     cursor: pointer;
   }
+
+  /* ── MEMORY MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30,58,47,0.5);
+    z-index: 6000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal-card {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 32px 36px;
+    width: 420px;
+    max-width: 94vw;
+  }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--forest);
+    margin-bottom: 4px;
+  }
+
+  .modal-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .modal-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .modal-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--cream-dark);
+    border-radius: 5px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    background: white;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  .modal-textarea:focus { border-color: var(--moss); }
+  .modal-textarea::placeholder { color: var(--text-muted); }
+
+  .upload-area {
+    border: 2px dashed var(--cream-dark);
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+    background: white;
+  }
+
+  .upload-area:hover { border-color: var(--moss); background: var(--active-bg); }
+  .upload-area.dragover { border-color: var(--forest); background: var(--active-bg); }
+
+  .upload-icon { font-size: 24px; margin-bottom: 6px; }
+  .upload-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .upload-text strong { color: var(--forest); }
+
+  #photo-input { display: none; }
+
+  .photo-previews { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+
+  .preview-wrap { position: relative; width: 72px; height: 72px; }
+
+  .preview-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 5px;
+    object-fit: cover;
+    border: 1px solid var(--cream-dark);
+    cursor: pointer;
+  }
+
+  .preview-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-progress {
+    height: 3px;
+    background: var(--cream-dark);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .upload-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forest), var(--moss));
+    transition: width 0.3s;
+  }
+
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .btn-cancel {
+    padding: 9px 20px;
+    border: 1px solid var(--cream-dark);
+    border-radius: 5px;
+    background: transparent;
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .btn-save {
+    padding: 9px 24px;
+    border: none;
+    border-radius: 5px;
+    background: var(--forest);
+    color: var(--cream);
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+
+  .btn-save:hover { background: var(--forest-mid); }
+  .btn-save:disabled { opacity: 0.5; cursor: default; }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 9000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox.show { display: flex; }
+  .lightbox img { max-width: 90vw; max-height: 88vh; border-radius: 6px; object-fit: contain; }
+  .lightbox-close { position: absolute; top: 20px; right: 24px; color: white; font-size: 28px; cursor: pointer; opacity: 0.7; background: none; border: none; }
 </style>
 </head>
 <body>
+
+<!-- Memory modal -->
+<div class="modal-overlay" id="memory-modal" onclick="modalOverlayClick(event)">
+  <div class="modal-card">
+    <div class="modal-title" id="modal-beach-name">Beach Name</div>
+    <div class="modal-subtitle">Log a memory</div>
+
+    <label class="modal-label">Your memory</label>
+    <textarea class="modal-textarea" id="modal-note" placeholder="What did you love about this place? What did you eat? What was the weather like…"></textarea>
+
+    <label class="modal-label">Photos</label>
+    <div class="upload-area" id="upload-area" onclick="document.getElementById('photo-input').click()">
+      <div class="upload-icon">📷</div>
+      <div class="upload-text">
+        <strong>Click to upload</strong> or drag & drop<br>
+        JPG, PNG, HEIC up to 10MB each
+      </div>
+    </div>
+    <input type="file" id="photo-input" multiple accept="image/*"/>
+
+    <div class="photo-previews" id="photo-previews"></div>
+
+    <div class="upload-progress" id="upload-progress">
+      <div class="upload-progress-bar" id="upload-progress-bar" style="width:0%"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeMemoryModal()">Cancel</button>
+      <button class="btn-save" id="btn-save" onclick="saveMemory()">Save memory</button>
+    </div>
+  </div>
+</div>
 
 <!-- Coming soon modal -->
 <div class="cs-overlay" id="cs-overlay" onclick="csOverlayClick(event)">
@@ -617,6 +892,12 @@
     <div class="cs-body">The <strong id="cs-feature">Journal</strong> feature is on its way — photo uploads, visit memories, and your personal beach diary. Check back later.</div>
     <button class="cs-close" onclick="document.getElementById('cs-overlay').classList.remove('show')">Got it</button>
   </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="document.getElementById('lightbox').classList.remove('show')">
+  <button class="lightbox-close">✕</button>
+  <img id="lightbox-img" src="" alt=""/>
 </div>
 
 <header>
@@ -648,6 +929,7 @@
       </div>
       <div class="progress-pct" id="progress-pct">0%</div>
     </div>
+    <div class="sync-dot" id="sync-dot" title="Sync status"></div>
   </div>
 </header>
 
@@ -676,7 +958,29 @@
 
 <div id="toast"></div>
 
-<script>
+<!-- Firebase via ES module -->
+<script type="module">
+import { initializeApp }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+// ── FIREBASE CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyCRO3gucErJW5aTnwWHjdTszc98Winbpmw",
+  authDomain: "maine-beach-tracker.firebaseapp.com",
+  projectId: "maine-beach-tracker",
+  storageBucket: "maine-beach-tracker.firebasestorage.app",
+  messagingSenderId: "334909044032",
+  appId: "1:334909044032:web:d619f8030c1e7a03c276a5"
+};
+
+const app     = initializeApp(firebaseConfig);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+// ── BEACH DATA ──
 const BEACHES = [
   { id: 1,  name: "Ogunquit Beach",           town: "Ogunquit",        type: "sandy",  tags: ["state-park"],    lat: 43.2561, lng: -70.5916, notes: "3.5 miles of barrier beach peninsula, one of the most beautiful in New England. Trolley access from town." },
   { id: 2,  name: "Old Orchard Beach",        town: "Old Orchard Beach",type:"sandy",  tags: [],                lat: 43.5118, lng: -70.3759, notes: "7 miles of sandy shore with a classic pier, boardwalk, amusement park, and great boogie board waves." },
@@ -719,156 +1023,305 @@ const BEACHES = [
 ];
 
 // ── STATE ──
-let visited = JSON.parse(localStorage.getItem('maine-beach-visited') || '{}');
+let visitedData  = {};   // { id: { note, visitedAt, photos: [] } }
 let activeFilter = 'all';
-let searchQuery = '';
+let searchQuery  = '';
 let activePopupId = null;
-let markers = {};
+let markers      = {};
 let map;
+let modalBeachId = null;
+let pendingFiles = [];
 
-function saveVisited() {
-  localStorage.setItem('maine-beach-visited', JSON.stringify(visited));
+// ── SYNC DOT ──
+function setSyncStatus(s) {
+  const dot = document.getElementById('sync-dot');
+  dot.className = 'sync-dot ' + s;
+  dot.title = s === 'synced' ? 'All changes saved' : s === 'syncing' ? 'Saving…' : 'Sync error';
 }
 
-function isVisited(id) { return !!visited[id]; }
+// ── REAL-TIME LISTENER ──
+onSnapshot(collection(db, 'visits'), snap => {
+  visitedData = {};
+  snap.forEach(d => { visitedData[parseInt(d.id)] = d.data(); });
+  setSyncStatus('synced');
+  updateProgress();
+  renderList();
+  BEACHES.forEach(b => refreshMarker(b.id));
+  if (activePopupId && markers[activePopupId]?.isPopupOpen()) {
+    markers[activePopupId].setPopupContent(popupHtml(BEACHES.find(b => b.id === activePopupId)));
+  }
+});
 
-function toggleVisited(id) {
-  if (visited[id]) { delete visited[id]; }
-  else { visited[id] = true; }
-  saveVisited();
-  updateAll(id);
-  showToast(visited[id] ? '✓ Marked as visited' : 'Removed from visited');
+// ── TOGGLE VISITED ──
+async function toggleVisited(id) {
+  setSyncStatus('syncing');
+  try {
+    if (visitedData[id]) {
+      await deleteDoc(doc(db, 'visits', String(id)));
+      showToast('Removed from visited');
+    } else {
+      await setDoc(doc(db, 'visits', String(id)), {
+        visitedAt: new Date().toISOString(),
+        note: '',
+        photos: []
+      });
+      showToast('✓ Marked as visited');
+    }
+    setSyncStatus('synced');
+  } catch(e) {
+    setSyncStatus('error');
+    showToast('Error — check connection');
+    console.error(e);
+  }
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+function isVisited(id) { return !!visitedData[id]; }
+
+// ── MEMORY MODAL ──
+function openMemoryModal(id) {
+  modalBeachId = id;
+  pendingFiles = [];
+  const beach = BEACHES.find(b => b.id === id);
+  const data  = visitedData[id] || {};
+  document.getElementById('modal-beach-name').textContent = beach.name;
+  document.getElementById('modal-note').value = data.note || '';
+  document.getElementById('photo-previews').innerHTML = '';
+  document.getElementById('upload-progress').style.display = 'none';
+  document.getElementById('btn-save').disabled = false;
+  (data.photos || []).forEach(url => addPreviewFromUrl(url, true));
+  document.getElementById('memory-modal').classList.add('show');
 }
 
+function closeMemoryModal() {
+  document.getElementById('memory-modal').classList.remove('show');
+  modalBeachId = null;
+  pendingFiles = [];
+}
+
+function modalOverlayClick(e) {
+  if (e.target === document.getElementById('memory-modal')) closeMemoryModal();
+}
+
+function addPreviewFromUrl(url, existing = false) {
+  const wrap = document.createElement('div');
+  wrap.className = 'preview-wrap';
+  const img = document.createElement('img');
+  img.className = 'preview-img';
+  img.src = url;
+  img.onclick = () => openLightbox(url);
+  const btn = document.createElement('button');
+  btn.className = 'preview-remove';
+  btn.textContent = '✕';
+  btn.onclick = () => {
+    wrap.remove();
+    if (!existing) pendingFiles = pendingFiles.filter(f => f._previewUrl !== url);
+  };
+  wrap.appendChild(img);
+  wrap.appendChild(btn);
+  document.getElementById('photo-previews').appendChild(wrap);
+}
+
+document.getElementById('photo-input').addEventListener('change', e => {
+  Array.from(e.target.files).forEach(file => {
+    file._previewUrl = URL.createObjectURL(file);
+    pendingFiles.push(file);
+    addPreviewFromUrl(file._previewUrl, false);
+  });
+  e.target.value = '';
+});
+
+const uploadArea = document.getElementById('upload-area');
+uploadArea.addEventListener('dragover',  e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  Array.from(e.dataTransfer.files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    file._previewUrl = URL.createObjectURL(file);
+    pendingFiles.push(file);
+    addPreviewFromUrl(file._previewUrl, false);
+  });
+});
+
+async function saveMemory() {
+  if (!modalBeachId) return;
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  setSyncStatus('syncing');
+
+  const note = document.getElementById('modal-note').value.trim();
+
+  const existingUrls = [];
+  document.querySelectorAll('#photo-previews .preview-img').forEach(img => {
+    if (img.src.startsWith('http')) existingUrls.push(img.src);
+  });
+
+  let newUrls = [];
+  if (pendingFiles.length > 0) {
+    const progressWrap = document.getElementById('upload-progress');
+    const progressBar  = document.getElementById('upload-progress-bar');
+    progressWrap.style.display = 'block';
+
+    for (let i = 0; i < pendingFiles.length; i++) {
+      const file = pendingFiles[i];
+      const storageRef = ref(storage, `beaches/${modalBeachId}/${Date.now()}_${file.name}`);
+      await new Promise((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file);
+        task.on('state_changed',
+          snap => {
+            const pct = ((i / pendingFiles.length) + (snap.bytesTransferred / snap.totalBytes / pendingFiles.length)) * 100;
+            progressBar.style.width = Math.round(pct) + '%';
+          },
+          reject,
+          async () => { newUrls.push(await getDownloadURL(task.snapshot.ref)); resolve(); }
+        );
+      });
+    }
+  }
+
+  try {
+    await setDoc(doc(db, 'visits', String(modalBeachId)), {
+      visitedAt: visitedData[modalBeachId]?.visitedAt || new Date().toISOString(),
+      note,
+      photos: [...existingUrls, ...newUrls]
+    });
+    setSyncStatus('synced');
+    showToast('Memory saved ✓');
+    closeMemoryModal();
+  } catch(e) {
+    setSyncStatus('error');
+    showToast('Error saving — try again');
+    btn.disabled = false;
+    console.error(e);
+  }
+}
+
+// ── LIGHTBOX ──
+function openLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.add('show');
+}
+
+// ── COMING SOON ──
 function showCS(feature) {
   document.getElementById('cs-feature').textContent = feature;
   document.getElementById('cs-overlay').classList.add('show');
 }
 
 function csOverlayClick(e) {
-  if (e.target === document.getElementById('cs-overlay')) {
+  if (e.target === document.getElementById('cs-overlay'))
     document.getElementById('cs-overlay').classList.remove('show');
-  }
 }
 
 // ── PROGRESS ──
 function updateProgress() {
   const total = BEACHES.length;
-  const done = Object.keys(visited).length;
-  const pct = Math.round(done / total * 100);
+  const done  = Object.keys(visitedData).length;
+  const pct   = Math.round(done / total * 100);
   document.getElementById('visited-count').textContent = done;
-  document.getElementById('total-count').textContent = total;
+  document.getElementById('total-count').textContent   = total;
   document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-pct').textContent  = pct + '%';
 }
 
 // ── SIDEBAR ──
 function getFilteredBeaches() {
   return BEACHES.filter(b => {
     const matchSearch = b.name.toLowerCase().includes(searchQuery) || b.town.toLowerCase().includes(searchQuery);
-    const matchFilter = activeFilter === 'all' || (activeFilter === 'visited' && isVisited(b.id)) || (activeFilter === 'unvisited' && !isVisited(b.id));
+    const matchFilter = activeFilter === 'all'
+      || (activeFilter === 'visited'   &&  isVisited(b.id))
+      || (activeFilter === 'unvisited' && !isVisited(b.id));
     return matchSearch && matchFilter;
   });
 }
 
 function renderList() {
-  const list = document.getElementById('beach-list');
+  const list    = document.getElementById('beach-list');
   const beaches = getFilteredBeaches();
-  if (beaches.length === 0) {
+  if (!beaches.length) {
     list.innerHTML = '<div class="no-results">No beaches found</div>';
     return;
   }
-  list.innerHTML = beaches.map(b => `
-    <div class="beach-item${activePopupId === b.id ? ' active' : ''}" data-id="${b.id}" onclick="focusBeach(${b.id})">
-      <div class="check-circle${isVisited(b.id) ? ' checked' : ''}" onclick="event.stopPropagation(); toggleVisited(${b.id})">
-        <div class="checkmark"></div>
+  list.innerHTML = beaches.map(b => {
+    const data       = visitedData[b.id];
+    const firstPhoto = data?.photos?.[0];
+    const thumbHtml  = firstPhoto
+      ? `<img class="beach-thumb" src="${firstPhoto}" alt="" onclick="event.stopPropagation(); openLightbox('${firstPhoto}')">`
+      : '';
+    return `
+      <div class="beach-item${activePopupId === b.id ? ' active' : ''}" data-id="${b.id}" onclick="focusBeach(${b.id})">
+        <div class="check-circle${isVisited(b.id) ? ' checked' : ''}" onclick="event.stopPropagation(); toggleVisited(${b.id})">
+          <div class="checkmark"></div>
+        </div>
+        <div class="beach-info">
+          <div class="beach-name">${b.name}</div>
+          <div class="beach-meta">${b.town} &middot; ${b.type}</div>
+        </div>
+        ${thumbHtml}
+        <div class="type-dot ${b.type}"></div>
       </div>
-      <div class="beach-info">
-        <div class="beach-name">${b.name}</div>
-        <div class="beach-meta">${b.town} &middot; ${b.type}</div>
-      </div>
-      <div class="type-dot ${b.type}"></div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-// ── MAP MARKERS ──
+// ── MARKERS ──
 function makeIcon(beach) {
   const color = isVisited(beach.id) ? '#3d6b55' : '#c4a882';
   return L.divIcon({
     className: '',
-    html: `<div style="
-      width:24px; height:24px;
-      background:${color};
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      border:2.5px solid white;
-      box-shadow:0 2px 8px rgba(30,58,47,0.35);
-      cursor:pointer;
-    "></div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 24],
-    popupAnchor: [0, -26],
+    html: `<div style="width:24px;height:24px;background:${color};border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2.5px solid white;box-shadow:0 2px 8px rgba(30,58,47,0.35);cursor:pointer;"></div>`,
+    iconSize: [24,24], iconAnchor: [12,24], popupAnchor: [0,-26],
   });
 }
 
 function popupHtml(beach) {
-  const v = isVisited(beach.id);
-  const tagHtml = beach.tags.map(t => `<span class="popup-tag ${t}">${t.replace('-', ' ')}</span>`).join('');
+  const v        = isVisited(beach.id);
+  const data     = visitedData[beach.id] || {};
+  const tagHtml  = beach.tags.map(t => `<span class="popup-tag ${t}">${t.replace('-',' ')}</span>`).join('');
+  const photosHtml = (data.photos||[]).length
+    ? `<div class="popup-photos">${data.photos.map(url=>`<img class="popup-photo" src="${url}" onclick="openLightbox('${url}')">`).join('')}</div>`
+    : '';
+  const noteHtml = data.note
+    ? `<div class="popup-memory-note">${data.note}</div>`
+    : '';
+  const logBtn   = v
+    ? `<button class="popup-btn log-memory" onclick="openMemoryModal(${beach.id})">✏ Edit memory & photos</button>`
+    : '';
   return `
     <div class="popup-header">
       <div class="popup-beach-name">${beach.name}</div>
       <div class="popup-town">${beach.town}</div>
     </div>
+    ${photosHtml}
     <div class="popup-body">
-      <div class="popup-tags">
-        <span class="popup-tag ${beach.type}">${beach.type}</span>
-        ${tagHtml}
-      </div>
+      <div class="popup-tags"><span class="popup-tag ${beach.type}">${beach.type}</span>${tagHtml}</div>
       <div class="popup-notes">${beach.notes}</div>
+      ${noteHtml}
     </div>
     <button class="popup-btn ${v ? 'mark-unvisited' : 'mark-visited'}" onclick="toggleVisited(${beach.id})">
       ${v ? '✓ Visited — click to unmark' : '+ Mark as visited'}
     </button>
+    ${logBtn}
   `;
 }
 
 function initMarkers() {
   BEACHES.forEach(b => {
     const marker = L.marker([b.lat, b.lng], { icon: makeIcon(b) })
-      .bindPopup(popupHtml(b), { maxWidth: 230, minWidth: 230 })
+      .bindPopup(popupHtml(b), { maxWidth: 250, minWidth: 250 })
       .addTo(map);
-
-    marker.on('popupopen', () => {
-      activePopupId = b.id;
-      renderList();
-      scrollListToBeach(b.id);
-    });
-
-    marker.on('popupclose', () => {
-      if (activePopupId === b.id) activePopupId = null;
-      renderList();
-    });
-
+    marker.on('popupopen',  () => { activePopupId = b.id; renderList(); scrollListToBeach(b.id); });
+    marker.on('popupclose', () => { if (activePopupId === b.id) activePopupId = null; renderList(); });
     markers[b.id] = marker;
   });
 }
 
 function refreshMarker(id) {
   const b = BEACHES.find(x => x.id === id);
-  if (!b) return;
-  const marker = markers[id];
-  marker.setIcon(makeIcon(b));
-  if (marker.isPopupOpen()) {
-    marker.setPopupContent(popupHtml(b));
-  }
+  if (!b || !markers[id]) return;
+  markers[id].setIcon(makeIcon(b));
+  if (markers[id].isPopupOpen()) markers[id].setPopupContent(popupHtml(b));
 }
 
 function focusBeach(id) {
@@ -884,20 +1337,18 @@ function scrollListToBeach(id) {
   if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
-function updateAll(id) {
-  updateProgress();
-  renderList();
-  refreshMarker(id);
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  map = L.map('map', {
-    center: [44.1, -69.3],
-    zoom: 8,
-    zoomControl: true,
-  });
+  setSyncStatus('syncing');
 
+  map = L.map('map', { center: [44.1, -69.3], zoom: 8, zoomControl: true });
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
     maxZoom: 18,
@@ -921,6 +1372,17 @@ document.addEventListener('DOMContentLoaded', () => {
     renderList();
   });
 });
+
+// expose to inline onclick handlers
+window.toggleVisited     = toggleVisited;
+window.focusBeach        = focusBeach;
+window.openMemoryModal   = openMemoryModal;
+window.closeMemoryModal  = closeMemoryModal;
+window.modalOverlayClick = modalOverlayClick;
+window.saveMemory        = saveMemory;
+window.openLightbox      = openLightbox;
+window.showCS            = showCS;
+window.csOverlayClick    = csOverlayClick;
 </script>
 </body>
 </html>
