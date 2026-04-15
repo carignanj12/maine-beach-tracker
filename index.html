@@ -1070,24 +1070,23 @@
 
 <div id="toast"></div>
 
+
 <!-- Firebase via ES module -->
 <script type="module">
-import { initializeApp }       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection }
-                                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL }
-                                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut }
-                                from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-// ── ALLOWED EMAILS ──
-// Add Aadya's email in place of the placeholder when you have it
+// ── CONFIG ──
 const ALLOWED_EMAILS = [
   'jcarignan12345@gmail.com',
   'AADYAS_EMAIL_HERE@gmail.com',
 ];
 
-// ── FIREBASE CONFIG ──
 const firebaseConfig = {
   apiKey: "AIzaSyCRO3gucErJW5aTnwWHjdTszc98Winbpmw",
   authDomain: "maine-beach-tracker.firebaseapp.com",
@@ -1097,78 +1096,13 @@ const firebaseConfig = {
   appId: "1:334909044032:web:d619f8030c1e7a03c276a5"
 };
 
-const app      = initializeApp(firebaseConfig);
-const db       = getFirestore(app);
-const storage  = getStorage(app);
-const auth     = getAuth(app);
+const fbApp    = initializeApp(firebaseConfig);
+const db       = getFirestore(fbApp);
+const storage  = getStorage(fbApp);
+const auth     = getAuth(fbApp);
 const provider = new GoogleAuthProvider();
 
-// ── ALLOWED EMAILS ──
-const ALLOWED_EMAILS = [
-  'jcarignan12345@gmail.com',
-  'AADYAS_EMAIL_HERE@gmail.com',
-];
-
-// ── GOOGLE SIGN-IN BUTTON ──
-const GOOGLE_BTN_HTML = `
-  <svg style="width:18px;height:18px;flex-shrink:0;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-  </svg>
-  Sign in with Google`;
-
-function resetBtn() {
-  const btn = document.getElementById('google-sign-in-btn');
-  btn.disabled = false;
-  btn.innerHTML = GOOGLE_BTN_HTML;
-}
-
-document.getElementById('google-sign-in-btn').innerHTML = GOOGLE_BTN_HTML;
-
-document.getElementById('google-sign-in-btn').addEventListener('click', async () => {
-  const errorEl = document.getElementById('login-error');
-  const btn     = document.getElementById('google-sign-in-btn');
-  errorEl.style.display = 'none';
-  btn.disabled = true;
-  btn.innerHTML = 'Signing in…';
-
-  try {
-    const result = await signInWithPopup(auth, provider);
-    if (!ALLOWED_EMAILS.includes(result.user.email)) {
-      await signOut(auth);
-      errorEl.style.display = 'block';
-      resetBtn();
-    }
-    // if allowed, onAuthStateChanged fires and handles the rest
-  } catch(e) {
-    if (e.code !== 'auth/popup-closed-by-user') {
-      errorEl.textContent = 'Sign-in failed. Check the console for details.';
-      errorEl.style.display = 'block';
-      console.error('Auth error:', e.code, e.message);
-    }
-    resetBtn();
-  }
-});
-
-// ── AUTH STATE ──
-onAuthStateChanged(auth, user => {
-  if (user && ALLOWED_EMAILS.includes(user.email)) {
-    document.getElementById('login-screen').style.display = 'none';
-    startApp();
-  } else {
-    document.getElementById('login-screen').style.display = 'flex';
-  }
-});
-
-// ── APP BOOTSTRAP ──
-let appStarted = false;
-function startApp() {
-  if (appStarted) return;
-  appStarted = true;
-
-  // ── BEACH DATA ──
+// ── BEACH DATA ──
 const BEACHES = [
   { id: 1,  name: "Ogunquit Beach",           town: "Ogunquit",        type: "sandy",  tags: ["state-park"],    lat: 43.2561, lng: -70.5916, notes: "3.5 miles of barrier beach peninsula, one of the most beautiful in New England. Trolley access from town." },
   { id: 2,  name: "Old Orchard Beach",        town: "Old Orchard Beach",type:"sandy",  tags: [],                lat: 43.5118, lng: -70.3759, notes: "7 miles of sandy shore with a classic pier, boardwalk, amusement park, and great boogie board waves." },
@@ -1211,34 +1145,39 @@ const BEACHES = [
 ];
 
 // ── STATE ──
-let visitedData  = {};   // { id: { note, visitedAt, photos: [] } }
-let activeFilter = 'all';
-let searchQuery  = '';
+let visitedData   = {};
+let activeFilter  = 'all';
+let searchQuery   = '';
 let activePopupId = null;
-let markers      = {};
-let map;
-let modalBeachId = null;
-let pendingFiles = [];
+let markers       = {};
+let map           = null;
+let modalBeachId  = null;
+let pendingFiles  = [];
+let firestoreUnsub = null;
 
 // ── SYNC DOT ──
 function setSyncStatus(s) {
   const dot = document.getElementById('sync-dot');
+  if (!dot) return;
   dot.className = 'sync-dot ' + s;
   dot.title = s === 'synced' ? 'All changes saved' : s === 'syncing' ? 'Saving…' : 'Sync error';
 }
 
-// ── REAL-TIME LISTENER ──
-onSnapshot(collection(db, 'visits'), snap => {
-  visitedData = {};
-  snap.forEach(d => { visitedData[parseInt(d.id)] = d.data(); });
-  setSyncStatus('synced');
-  updateProgress();
-  renderList();
-  BEACHES.forEach(b => refreshMarker(b.id));
-  if (activePopupId && markers[activePopupId]?.isPopupOpen()) {
-    markers[activePopupId].setPopupContent(popupHtml(BEACHES.find(b => b.id === activePopupId)));
-  }
-});
+// ── FIRESTORE LISTENER ──
+function startFirestoreListener() {
+  if (firestoreUnsub) return;
+  firestoreUnsub = onSnapshot(collection(db, 'visits'), snap => {
+    visitedData = {};
+    snap.forEach(d => { visitedData[parseInt(d.id)] = d.data(); });
+    setSyncStatus('synced');
+    updateProgress();
+    renderList();
+    BEACHES.forEach(b => refreshMarker(b.id));
+    if (activePopupId && markers[activePopupId]?.isPopupOpen()) {
+      markers[activePopupId].setPopupContent(popupHtml(BEACHES.find(b => b.id === activePopupId)));
+    }
+  });
+}
 
 // ── TOGGLE VISITED ──
 async function toggleVisited(id) {
@@ -1248,11 +1187,7 @@ async function toggleVisited(id) {
       await deleteDoc(doc(db, 'visits', String(id)));
       showToast('Removed from visited');
     } else {
-      await setDoc(doc(db, 'visits', String(id)), {
-        visitedAt: new Date().toISOString(),
-        note: '',
-        photos: []
-      });
+      await setDoc(doc(db, 'visits', String(id)), { visitedAt: new Date().toISOString(), note: '', photos: [] });
       showToast('✓ Marked as visited');
     }
     setSyncStatus('synced');
@@ -1300,10 +1235,7 @@ function addPreviewFromUrl(url, existing = false) {
   const btn = document.createElement('button');
   btn.className = 'preview-remove';
   btn.textContent = '✕';
-  btn.onclick = () => {
-    wrap.remove();
-    if (!existing) pendingFiles = pendingFiles.filter(f => f._previewUrl !== url);
-  };
+  btn.onclick = () => { wrap.remove(); if (!existing) pendingFiles = pendingFiles.filter(f => f._previewUrl !== url); };
   wrap.appendChild(img);
   wrap.appendChild(btn);
   document.getElementById('photo-previews').appendChild(wrap);
@@ -1337,37 +1269,29 @@ async function saveMemory() {
   const btn = document.getElementById('btn-save');
   btn.disabled = true;
   setSyncStatus('syncing');
-
   const note = document.getElementById('modal-note').value.trim();
-
   const existingUrls = [];
   document.querySelectorAll('#photo-previews .preview-img').forEach(img => {
     if (img.src.startsWith('http')) existingUrls.push(img.src);
   });
-
   let newUrls = [];
   if (pendingFiles.length > 0) {
     const progressWrap = document.getElementById('upload-progress');
     const progressBar  = document.getElementById('upload-progress-bar');
     progressWrap.style.display = 'block';
-
     for (let i = 0; i < pendingFiles.length; i++) {
       const file = pendingFiles[i];
       const storageRef = ref(storage, `beaches/${modalBeachId}/${Date.now()}_${file.name}`);
       await new Promise((resolve, reject) => {
         const task = uploadBytesResumable(storageRef, file);
         task.on('state_changed',
-          snap => {
-            const pct = ((i / pendingFiles.length) + (snap.bytesTransferred / snap.totalBytes / pendingFiles.length)) * 100;
-            progressBar.style.width = Math.round(pct) + '%';
-          },
+          snap => { progressBar.style.width = Math.round(((i + snap.bytesTransferred / snap.totalBytes) / pendingFiles.length) * 100) + '%'; },
           reject,
           async () => { newUrls.push(await getDownloadURL(task.snapshot.ref)); resolve(); }
         );
       });
     }
   }
-
   try {
     await setDoc(doc(db, 'visits', String(modalBeachId)), {
       visitedAt: visitedData[modalBeachId]?.visitedAt || new Date().toISOString(),
@@ -1385,13 +1309,11 @@ async function saveMemory() {
   }
 }
 
-// ── LIGHTBOX ──
 function openLightbox(url) {
   document.getElementById('lightbox-img').src = url;
   document.getElementById('lightbox').classList.add('show');
 }
 
-// ── COMING SOON ──
 function showCS(feature) {
   document.getElementById('cs-feature').textContent = feature;
   document.getElementById('cs-overlay').classList.add('show');
@@ -1402,7 +1324,6 @@ function csOverlayClick(e) {
     document.getElementById('cs-overlay').classList.remove('show');
 }
 
-// ── PROGRESS ──
 function updateProgress() {
   const total = BEACHES.length;
   const done  = Object.keys(visitedData).length;
@@ -1413,7 +1334,6 @@ function updateProgress() {
   document.getElementById('progress-pct').textContent  = pct + '%';
 }
 
-// ── SIDEBAR ──
 function getFilteredBeaches() {
   return BEACHES.filter(b => {
     const matchSearch = b.name.toLowerCase().includes(searchQuery) || b.town.toLowerCase().includes(searchQuery);
@@ -1427,33 +1347,20 @@ function getFilteredBeaches() {
 function renderList() {
   const list    = document.getElementById('beach-list');
   const beaches = getFilteredBeaches();
-  if (!beaches.length) {
-    list.innerHTML = '<div class="no-results">No beaches found</div>';
-    return;
-  }
+  if (!beaches.length) { list.innerHTML = '<div class="no-results">No beaches found</div>'; return; }
   list.innerHTML = beaches.map(b => {
-    const data       = visitedData[b.id];
+    const data      = visitedData[b.id];
     const firstPhoto = data?.photos?.[0];
-    const thumbHtml  = firstPhoto
-      ? `<img class="beach-thumb" src="${firstPhoto}" alt="" onclick="event.stopPropagation(); openLightbox('${firstPhoto}')">`
-      : '';
-    return `
-      <div class="beach-item${activePopupId === b.id ? ' active' : ''}" data-id="${b.id}" onclick="focusBeach(${b.id})">
-        <div class="check-circle${isVisited(b.id) ? ' checked' : ''}" onclick="event.stopPropagation(); toggleVisited(${b.id})">
-          <div class="checkmark"></div>
-        </div>
-        <div class="beach-info">
-          <div class="beach-name">${b.name}</div>
-          <div class="beach-meta">${b.town} &middot; ${b.type}</div>
-        </div>
-        ${thumbHtml}
-        <div class="type-dot ${b.type}"></div>
-      </div>
-    `;
+    const thumbHtml  = firstPhoto ? `<img class="beach-thumb" src="${firstPhoto}" alt="" onclick="event.stopPropagation();openLightbox('${firstPhoto}')">` : '';
+    return `<div class="beach-item${activePopupId === b.id ? ' active' : ''}" data-id="${b.id}" onclick="focusBeach(${b.id})">
+      <div class="check-circle${isVisited(b.id) ? ' checked' : ''}" onclick="event.stopPropagation();toggleVisited(${b.id})"><div class="checkmark"></div></div>
+      <div class="beach-info"><div class="beach-name">${b.name}</div><div class="beach-meta">${b.town} &middot; ${b.type}</div></div>
+      ${thumbHtml}
+      <div class="type-dot ${b.type}"></div>
+    </div>`;
   }).join('');
 }
 
-// ── MARKERS ──
 function makeIcon(beach) {
   const color = isVisited(beach.id) ? '#3d6b55' : '#c4a882';
   return L.divIcon({
@@ -1464,34 +1371,18 @@ function makeIcon(beach) {
 }
 
 function popupHtml(beach) {
-  const v        = isVisited(beach.id);
-  const data     = visitedData[beach.id] || {};
-  const tagHtml  = beach.tags.map(t => `<span class="popup-tag ${t}">${t.replace('-',' ')}</span>`).join('');
+  const v         = isVisited(beach.id);
+  const data      = visitedData[beach.id] || {};
+  const tagHtml   = beach.tags.map(t => `<span class="popup-tag ${t}">${t.replace('-',' ')}</span>`).join('');
   const photosHtml = (data.photos||[]).length
-    ? `<div class="popup-photos">${data.photos.map(url=>`<img class="popup-photo" src="${url}" onclick="openLightbox('${url}')">`).join('')}</div>`
-    : '';
-  const noteHtml = data.note
-    ? `<div class="popup-memory-note">${data.note}</div>`
-    : '';
-  const logBtn   = v
-    ? `<button class="popup-btn log-memory" onclick="openMemoryModal(${beach.id})">✏ Edit memory & photos</button>`
-    : '';
-  return `
-    <div class="popup-header">
-      <div class="popup-beach-name">${beach.name}</div>
-      <div class="popup-town">${beach.town}</div>
-    </div>
+    ? `<div class="popup-photos">${data.photos.map(url=>`<img class="popup-photo" src="${url}" onclick="openLightbox('${url}')">`).join('')}</div>` : '';
+  const noteHtml  = data.note ? `<div class="popup-memory-note">${data.note}</div>` : '';
+  const logBtn    = v ? `<button class="popup-btn log-memory" onclick="openMemoryModal(${beach.id})">✏ Edit memory & photos</button>` : '';
+  return `<div class="popup-header"><div class="popup-beach-name">${beach.name}</div><div class="popup-town">${beach.town}</div></div>
     ${photosHtml}
-    <div class="popup-body">
-      <div class="popup-tags"><span class="popup-tag ${beach.type}">${beach.type}</span>${tagHtml}</div>
-      <div class="popup-notes">${beach.notes}</div>
-      ${noteHtml}
-    </div>
-    <button class="popup-btn ${v ? 'mark-unvisited' : 'mark-visited'}" onclick="toggleVisited(${beach.id})">
-      ${v ? '✓ Visited — click to unmark' : '+ Mark as visited'}
-    </button>
-    ${logBtn}
-  `;
+    <div class="popup-body"><div class="popup-tags"><span class="popup-tag ${beach.type}">${beach.type}</span>${tagHtml}</div><div class="popup-notes">${beach.notes}</div>${noteHtml}</div>
+    <button class="popup-btn ${v?'mark-unvisited':'mark-visited'}" onclick="toggleVisited(${beach.id})">${v?'✓ Visited — click to unmark':'+ Mark as visited'}</button>
+    ${logBtn}`;
 }
 
 function initMarkers() {
@@ -1532,36 +1423,63 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── INIT ──
-setSyncStatus('syncing');
+// ── MAP INIT (runs immediately on DOMContentLoaded, before auth) ──
+document.addEventListener('DOMContentLoaded', () => {
+  map = L.map('map', { center: [44.1, -69.3], zoom: 8, zoomControl: true });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
+    maxZoom: 18,
+  }).addTo(map);
+  initMarkers();
+  updateProgress();
+  renderList();
 
-map = L.map('map', { center: [44.1, -69.3], zoom: 8, zoomControl: true });
-setTimeout(() => map.invalidateSize(), 200);
+  document.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderList();
+    });
+  });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
-  maxZoom: 18,
-}).addTo(map);
-
-initMarkers();
-updateProgress();
-renderList();
-
-document.querySelectorAll('.filter-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeFilter = btn.dataset.filter;
+  document.getElementById('search').addEventListener('input', e => {
+    searchQuery = e.target.value.toLowerCase();
     renderList();
   });
 });
 
-document.getElementById('search').addEventListener('input', e => {
-  searchQuery = e.target.value.toLowerCase();
-  renderList();
+// ── AUTH ──
+document.getElementById('google-sign-in-btn').addEventListener('click', async () => {
+  const errorEl = document.getElementById('login-error');
+  errorEl.style.display = 'none';
+  try {
+    const result = await signInWithPopup(auth, provider);
+    if (!ALLOWED_EMAILS.includes(result.user.email)) {
+      await signOut(auth);
+      errorEl.style.display = 'block';
+    }
+  } catch(e) {
+    if (e.code !== 'auth/popup-closed-by-user') {
+      errorEl.textContent = 'Sign-in failed — please try again.';
+      errorEl.style.display = 'block';
+      console.error(e);
+    }
+  }
 });
 
-// expose to inline onclick handlers
+onAuthStateChanged(auth, user => {
+  if (user && ALLOWED_EMAILS.includes(user.email)) {
+    document.getElementById('login-screen').style.display = 'none';
+    setTimeout(() => { if (map) map.invalidateSize(); }, 100);
+    setSyncStatus('syncing');
+    startFirestoreListener();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+});
+
+// ── EXPOSE TO HTML ──
 window.toggleVisited     = toggleVisited;
 window.focusBeach        = focusBeach;
 window.openMemoryModal   = openMemoryModal;
@@ -1571,8 +1489,6 @@ window.saveMemory        = saveMemory;
 window.openLightbox      = openLightbox;
 window.showCS            = showCS;
 window.csOverlayClick    = csOverlayClick;
-
-} // end startApp
 </script>
 </body>
 </html>
