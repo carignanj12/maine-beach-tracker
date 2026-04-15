@@ -1513,18 +1513,18 @@ function showToast(msg) {
 }
 
 // ── INIT ──
-document.addEventListener('DOMContentLoaded', () => {
-  setSyncStatus('syncing');
+setSyncStatus('syncing');
 
-  map = L.map('map', { center: [44.1, -69.3], zoom: 8, zoomControl: true });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
-    maxZoom: 18,
-  }).addTo(map);
+map = L.map('map', { center: [44.1, -69.3], zoom: 8, zoomControl: true });
 
-  initMarkers();
-  updateProgress();
-  renderList();
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; CARTO & OpenStreetMap',
+  maxZoom: 18,
+}).addTo(map);
+
+initMarkers();
+updateProgress();
+renderList();
 
   document.querySelectorAll('.filter-tab').forEach(btn => {
     btn.addEventListener('click', () => {
