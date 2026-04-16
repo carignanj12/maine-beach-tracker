@@ -1088,6 +1088,11 @@
     }
 
     .sidebar.open { transform: translateX(0); }
+
+    /* Prevent iOS Safari from zooming in when tapping inputs/textareas.
+       iOS zooms any element with font-size < 16px on focus. */
+    .search-box    { font-size: 16px; }
+    .modal-textarea { font-size: 16px; }
   }
 </style>
 </head>
