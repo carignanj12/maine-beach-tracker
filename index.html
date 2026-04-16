@@ -1663,7 +1663,7 @@ function initMarkers() {
     const marker = L.marker([b.lat, b.lng], { icon: makeIcon(b) })
       .bindPopup(popupHtml(b), { maxWidth: 250, minWidth: 250 })
       .addTo(map);
-    marker.on('popupopen',  () => { activePopupId = b.id; renderList(); scrollListToBeach(b.id); });
+    marker.on('popupopen',  () => { activePopupId = b.id; markers[b.id].setPopupContent(popupHtml(b)); renderList(); scrollListToBeach(b.id); });
     marker.on('popupclose', () => { if (activePopupId === b.id) activePopupId = null; renderList(); });
     markers[b.id] = marker;
   });
