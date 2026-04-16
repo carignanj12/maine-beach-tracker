@@ -941,6 +941,22 @@
     letter-spacing: 0.06em;
   }
 
+  /* ── STAR RATING ── */
+  .star-rating { display:flex; gap:4px; margin-bottom:20px; align-items:center; }
+  .star-rating .star { font-size:24px; cursor:pointer; color:var(--fog); transition:color 0.12s; user-select:none; }
+  .star-rating .star.filled { color:#c8922a; }
+
+  .stars-readonly { display:inline-flex; gap:1px; vertical-align:middle; }
+  .stars-readonly .star { font-size:13px; color:var(--fog); user-select:none; }
+  .stars-readonly .star.filled { color:#c8922a; }
+
+  .stars-mini { display:inline-flex; }
+  .stars-mini .star { font-size:11px; color:var(--fog); user-select:none; }
+  .stars-mini .star.filled { color:#c8922a; }
+
+  .popup-header .stars-readonly .star        { color:rgba(255,255,255,0.3); }
+  .popup-header .stars-readonly .star.filled { color:#e8c870; }
+
   /* ── DRAWER TOGGLE BUTTON ── */
   #drawer-toggle {
     display: none;
@@ -1102,6 +1118,14 @@
   <div class="modal-card">
     <div class="modal-title" id="modal-beach-name">Beach Name</div>
     <div class="modal-subtitle">Log a memory</div>
+
+    <div class="star-rating" id="modal-star-rating" aria-label="Rate this beach">
+      <span class="star" data-value="1">★</span>
+      <span class="star" data-value="2">★</span>
+      <span class="star" data-value="3">★</span>
+      <span class="star" data-value="4">★</span>
+      <span class="star" data-value="5">★</span>
+    </div>
 
     <label class="modal-label">Your memory</label>
     <textarea class="modal-textarea" id="modal-note" placeholder="What did you love about this place? What did you eat? What was the weather like…"></textarea>
@@ -1307,6 +1331,7 @@ let modalBeachId  = null;
 let pendingFiles  = [];
 let firestoreUnsub = null;
 let photoPromptBeachId = null;
+let modalRating = null;
 
 // ── DRAWER ──
 function openDrawer() {
@@ -1368,7 +1393,7 @@ async function toggleVisited(id) {
       await deleteDoc(doc(db, 'visits', String(id)));
       showToast('Removed from visited');
     } else {
-      await setDoc(doc(db, 'visits', String(id)), { visitedAt: new Date().toISOString(), note: '', photos: [] });
+      await setDoc(doc(db, 'visits', String(id)), { visitedAt: new Date().toISOString(), note: '', rating: null, photos: [] });
       showToast('✓ Marked as visited');
       showPhotoPrompt(id);
     }
@@ -1382,6 +1407,35 @@ async function toggleVisited(id) {
 
 function isVisited(id) { return !!visitedData[id]; }
 
+// ── STAR RATING HELPERS ──
+function starsHtml(rating, mode = 'readonly') {
+  const cls = mode === 'mini' ? 'stars-mini' : 'stars-readonly';
+  const stars = [1,2,3,4,5].map(n =>
+    `<span class="star${rating && n <= rating ? ' filled' : ''}">★</span>`
+  ).join('');
+  return `<div class="${cls}">${stars}</div>`;
+}
+
+function initStarRating() {
+  const container = document.getElementById('modal-star-rating');
+  const stars = Array.from(container.querySelectorAll('.star'));
+
+  function applyFill(upTo) {
+    const threshold = upTo ?? modalRating ?? 0;
+    stars.forEach((s, i) => s.classList.toggle('filled', i < threshold));
+  }
+
+  container.addEventListener('mouseleave', () => applyFill(null));
+  stars.forEach((star, idx) => {
+    const val = idx + 1;
+    star.addEventListener('mouseenter', () => applyFill(val));
+    star.addEventListener('click', () => {
+      modalRating = (modalRating === val) ? null : val;
+      applyFill(null);
+    });
+  });
+}
+
 // ── MEMORY MODAL ──
 function openMemoryModal(id) {
   modalBeachId = id;
@@ -1390,6 +1444,9 @@ function openMemoryModal(id) {
   const data  = visitedData[id] || {};
   document.getElementById('modal-beach-name').textContent = beach.name;
   document.getElementById('modal-note').value = data.note || '';
+  modalRating = data.rating ?? null;
+  document.querySelectorAll('#modal-star-rating .star')
+    .forEach((s, i) => s.classList.toggle('filled', modalRating !== null && i < modalRating));
   document.getElementById('photo-previews').innerHTML = '';
   document.getElementById('upload-progress').style.display = 'none';
   document.getElementById('btn-save').disabled = false;
@@ -1401,6 +1458,7 @@ function closeMemoryModal() {
   document.getElementById('memory-modal').classList.remove('show');
   modalBeachId = null;
   pendingFiles = [];
+  modalRating = null;
 }
 
 function modalOverlayClick(e) {
@@ -1463,6 +1521,7 @@ document.getElementById('photo-prompt-input').addEventListener('change', async e
     await setDoc(doc(db, 'visits', String(id)), {
       visitedAt: visitedData[id]?.visitedAt || new Date().toISOString(),
       note: visitedData[id]?.note || '',
+      rating: visitedData[id]?.rating ?? null,
       photos: [...existing, url]
     });
     setSyncStatus('synced');
@@ -1507,6 +1566,7 @@ async function saveMemory() {
     await setDoc(doc(db, 'visits', String(modalBeachId)), {
       visitedAt: visitedData[modalBeachId]?.visitedAt || new Date().toISOString(),
       note,
+      rating: modalRating,
       photos: [...existingUrls, ...newUrls]
     });
     setSyncStatus('synced');
@@ -1563,9 +1623,10 @@ function renderList() {
     const data      = visitedData[b.id];
     const firstPhoto = data?.photos?.[0];
     const thumbHtml  = firstPhoto ? `<img class="beach-thumb" src="${firstPhoto}" alt="" onclick="event.stopPropagation();openLightbox('${firstPhoto}')">` : '';
+    const miniStars  = (data?.rating) ? starsHtml(data.rating, 'mini') : '';
     return `<div class="beach-item${activePopupId === b.id ? ' active' : ''}" data-id="${b.id}" onclick="focusBeach(${b.id})">
       <div class="check-circle${isVisited(b.id) ? ' checked' : ''}" onclick="event.stopPropagation();toggleVisited(${b.id})"><div class="checkmark"></div></div>
-      <div class="beach-info"><div class="beach-name">${b.name}</div><div class="beach-meta">${b.town} &middot; ${b.type}</div></div>
+      <div class="beach-info"><div class="beach-name">${b.name}</div><div class="beach-meta">${b.town} &middot; ${b.type}</div>${miniStars}</div>
       ${thumbHtml}
       <div class="type-dot ${b.type}"></div>
     </div>`;
@@ -1589,7 +1650,8 @@ function popupHtml(beach) {
     ? `<div class="popup-photos">${data.photos.map(url=>`<img class="popup-photo" src="${url}" onclick="openLightbox('${url}')">`).join('')}</div>` : '';
   const noteHtml  = data.note ? `<div class="popup-memory-note">${data.note}</div>` : '';
   const logBtn    = v ? `<button class="popup-btn log-memory" onclick="openMemoryModal(${beach.id})">✏ Edit memory & photos</button>` : '';
-  return `<div class="popup-header"><div class="popup-beach-name">${beach.name}</div><div class="popup-town">${beach.town}</div></div>
+  const ratingHtml = (v && data.rating) ? starsHtml(data.rating, 'readonly') : '';
+  return `<div class="popup-header"><div class="popup-beach-name">${beach.name}</div><div class="popup-town">${beach.town}</div>${ratingHtml}</div>
     ${photosHtml}
     <div class="popup-body"><div class="popup-tags"><span class="popup-tag ${beach.type}">${beach.type}</span>${tagHtml}</div><div class="popup-notes">${beach.notes}</div>${noteHtml}</div>
     <button class="popup-btn ${v?'mark-unvisited':'mark-visited'}" onclick="toggleVisited(${beach.id})">${v?'✓ Visited — click to unmark':'+ Mark as visited'}</button>
@@ -1642,6 +1704,7 @@ document.addEventListener('DOMContentLoaded', () => {
     attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
     maxZoom: 18,
   }).addTo(map);
+  initStarRating();
   initMarkers();
   updateProgress();
   renderList();
