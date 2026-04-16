@@ -144,7 +144,7 @@
   }
 
   .progress-big {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Jost', sans-serif;
     font-size: 28px;
     font-weight: 300;
     color: var(--cream);
@@ -152,14 +152,14 @@
   }
 
   .progress-sep {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Jost', sans-serif;
     font-size: 20px;
     color: var(--forest-light);
     font-weight: 300;
   }
 
   .progress-total {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Jost', sans-serif;
     font-size: 20px;
     font-weight: 300;
     color: var(--sage);
@@ -225,8 +225,8 @@
   .sidebar {
     width: 292px;
     min-width: 292px;
-    background: var(--cream);
-    border-right: 1px solid var(--cream-dark);
+    background: #ffffff;
+    border-right: 2px solid var(--forest);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -235,7 +235,7 @@
   .sidebar-controls {
     padding: 14px 16px 12px;
     border-bottom: 1px solid var(--cream-dark);
-    background: white;
+    background: var(--cream);
   }
 
   .search-box {
@@ -246,7 +246,7 @@
     font-family: 'Jost', sans-serif;
     font-size: 12px;
     color: var(--text);
-    background: var(--cream);
+    background: #ffffff;
     margin-bottom: 10px;
     outline: none;
     transition: border-color 0.2s;
@@ -270,7 +270,7 @@
     text-transform: uppercase;
     border: 1px solid var(--cream-dark);
     border-radius: 4px;
-    background: transparent;
+    background: #ffffff;
     color: var(--text-muted);
     cursor: pointer;
     transition: all 0.18s;
@@ -1054,6 +1054,111 @@
 
   #photo-prompt-input { display: none; }
 
+  /* ── STATS OVERLAY ── */
+  .stats-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(30,58,47,0.6); z-index: 7000;
+    align-items: flex-start; justify-content: center;
+    padding: 84px 20px 20px; /* 84px = 64px header + 20px gap */
+  }
+  .stats-overlay.show { display: flex; }
+
+  .stats-card {
+    background: #fff; border-radius: 10px;
+    width: 100%; max-width: 420px; max-height: 68vh;
+    overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+    box-shadow: 0 12px 48px rgba(30,58,47,0.25);
+  }
+
+  .stats-card-header {
+    background: var(--forest);
+    padding: 16px 22px 14px;
+    flex-shrink: 0;
+  }
+
+  .stats-card-inner {
+    overflow-y: auto;
+    flex: 1;
+    padding: 14px 22px 18px;
+  }
+
+  .stats-close {
+    position: absolute; top: 12px; right: 14px;
+    background: rgba(255,255,255,0.1); border: none; cursor: pointer;
+    font-size: 14px; color: rgba(255,255,255,0.6);
+    line-height: 1; padding: 4px 7px; border-radius: 4px;
+  }
+  .stats-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .stats-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-style: italic;
+    color: var(--cream); margin-bottom: 1px;
+  }
+  .stats-subtitle {
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--fog); margin-bottom: 14px;
+  }
+
+  .stats-headline { display: flex; align-items: baseline; gap: 6px; }
+  .stats-headline-num {
+    font-family: 'Jost', sans-serif;
+    font-size: 38px; font-weight: 300; color: #fff; line-height: 1;
+  }
+  .stats-headline-label {
+    font-size: 11px; color: var(--fog);
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .stats-prog-bar-outer {
+    height: 3px; background: rgba(255,255,255,0.15);
+    border-radius: 2px; margin: 10px 0 4px;
+  }
+  .stats-prog-bar-fill {
+    height: 100%; border-radius: 2px;
+    background: var(--accent); transition: width 0.6s ease;
+  }
+  .stats-prog-pct { font-size: 10px; color: var(--fog); text-align: right; }
+
+  .stats-divider { border: none; border-top: 1px solid #f0f0f0; margin: 14px 0; }
+
+  .stats-section-title {
+    font-size: 9px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 10px;
+  }
+
+  .stats-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 6px; }
+  .stat-item .stat-num {
+    font-family: 'Jost', sans-serif;
+    font-size: 24px; font-weight: 300; color: var(--forest); line-height: 1;
+  }
+  .stat-item .stat-lbl {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--text-muted);
+  }
+
+  .stats-detail-row { font-size: 12px; color: var(--text); margin-bottom: 4px; }
+  .stats-detail-row span { color: var(--text-muted); }
+
+  .stats-top-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px;
+  }
+  .stats-top-item:last-child { border-bottom: none; }
+  .stats-empty { font-size: 12px; color: var(--text-muted); font-style: italic; padding: 4px 0; }
+
+  /* Sidebar stats link */
+  .sidebar-stats-link {
+    padding: 12px 16px; border-top: 1px solid var(--cream-dark); flex-shrink: 0;
+  }
+  .sidebar-stats-btn {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Jost', sans-serif; font-size: 12px;
+    color: var(--forest-mid); font-weight: 500;
+    padding: 0; letter-spacing: 0.02em;
+  }
+  .sidebar-stats-btn:hover { color: var(--forest); }
+
   /* ── MOBILE ── */
   @media (max-width: 768px) {
     #drawer-toggle { display: flex; }
@@ -1168,6 +1273,21 @@
   </div>
 </div>
 
+<!-- Stats overlay -->
+<div class="stats-overlay" id="stats-overlay" onclick="statsOverlayClick(event)">
+  <div class="stats-card">
+    <div class="stats-card-header">
+      <button class="stats-close" onclick="closeStats()" aria-label="Close">✕</button>
+      <div class="stats-title">Our Summer Together</div>
+      <div class="stats-subtitle">Maine · 2026</div>
+      <div id="stats-headline"></div>
+    </div>
+    <div class="stats-card-inner">
+      <div id="stats-body"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" onclick="document.getElementById('lightbox').classList.remove('show')">
   <button class="lightbox-close">✕</button>
@@ -1187,6 +1307,7 @@
 
   <div class="header-nav">
     <button class="nav-tab active">Map</button>
+    <button class="nav-tab" onclick="showStats()">Stats</button>
     <button class="nav-tab disabled" onclick="showCS('Journal')">Journal <span class="nav-soon">✦</span></button>
     <button class="nav-tab disabled" onclick="showCS('Gallery')">Gallery <span class="nav-soon">✦</span></button>
   </div>
@@ -1221,6 +1342,9 @@
       </div>
     </div>
     <div class="beach-list" id="beach-list"></div>
+    <div class="sidebar-stats-link">
+      <button class="sidebar-stats-btn" onclick="showStats()">View our stats →</button>
+    </div>
   </div>
 
   <div class="map-wrapper">
@@ -1413,6 +1537,14 @@ async function toggleVisited(id) {
 function isVisited(id) { return !!visitedData[id]; }
 
 // ── STAR RATING HELPERS ──
+function haversineMiles(lat1, lng1, lat2, lng2) {
+  const R = 3958.8;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 function starsHtml(rating, mode = 'readonly') {
   const cls = mode === 'mini' ? 'stars-mini' : 'stars-readonly';
   const stars = [1,2,3,4,5].map(n =>
@@ -1439,6 +1571,103 @@ function initStarRating() {
       applyFill(null);
     });
   });
+}
+
+// ── STATS ──
+function showStats() {
+  const visited = BEACHES.filter(b => isVisited(b.id));
+  const v = visited.length;
+  const total = BEACHES.length;
+  const pct = Math.round((v / total) * 100);
+
+  // Inject headline into dark header section
+  document.getElementById('stats-headline').innerHTML = `
+    <div class="stats-headline">
+      <div class="stats-headline-num">${v} <span style="font-size:20px;color:var(--fog);font-weight:300">/ ${total}</span></div>
+      <div class="stats-headline-label">beaches visited</div>
+    </div>
+    <div class="stats-prog-bar-outer">
+      <div class="stats-prog-bar-fill" style="width:${pct}%"></div>
+    </div>
+    <div class="stats-prog-pct">${pct}%</div>`;
+
+  let body = '';
+
+  if (v === 0) {
+    body = `<p class="stats-empty" style="text-align:center;padding:16px 0;">Your Maine adventure is just getting started 🌊</p>`;
+    document.getElementById('stats-body').innerHTML = body;
+    document.getElementById('stats-overlay').classList.add('show');
+    return;
+  }
+
+  // Beach types
+  const typeCounts = { sandy: 0, rocky: 0, mixed: 0 };
+  visited.forEach(b => { if (typeCounts[b.type] !== undefined) typeCounts[b.type]++; });
+  body += `
+    <div class="stats-section-title">Beach Types</div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">${typeCounts.sandy}</div><div class="stat-lbl">Sandy</div></div>
+      <div class="stat-item"><div class="stat-num">${typeCounts.rocky}</div><div class="stat-lbl">Rocky</div></div>
+      <div class="stat-item"><div class="stat-num">${typeCounts.mixed}</div><div class="stat-lbl">Mixed</div></div>
+    </div>`;
+
+  // Exploration
+  const towns = new Set(visited.map(b => b.town)).size;
+  const parks = visited.filter(b => b.tags && b.tags.length > 0).length;
+  const northmost = visited.reduce((a, b) => b.lat > a.lat ? b : a);
+  const eastmost  = visited.reduce((a, b) => b.lng > a.lng ? b : a);
+  let rangeHtml = '';
+  if (v >= 2) {
+    const southmost = visited.reduce((a, b) => b.lat < a.lat ? b : a);
+    const miles = Math.round(haversineMiles(southmost.lat, southmost.lng, northmost.lat, northmost.lng));
+    rangeHtml = `<div class="stats-detail-row">~${miles} miles <span>coastal range</span></div>`;
+  }
+  body += `
+    <hr class="stats-divider">
+    <div class="stats-section-title">Exploration</div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">${towns}</div><div class="stat-lbl">Town${towns !== 1 ? 's' : ''}</div></div>
+      <div class="stat-item"><div class="stat-num">${parks}</div><div class="stat-lbl">State & Nat'l Parks</div></div>
+    </div>
+    ${rangeHtml}
+    <div class="stats-detail-row">Furthest north: <span>${northmost.name}, ${northmost.town}</span></div>
+    <div class="stats-detail-row">Furthest east: <span>${eastmost.name}, ${eastmost.town}</span></div>`;
+
+  // Memories & photos
+  const withNotes   = visited.filter(b => visitedData[b.id]?.note?.trim()).length;
+  const totalPhotos = visited.reduce((n, b) => n + (visitedData[b.id]?.photos?.length ?? 0), 0);
+  body += `
+    <hr class="stats-divider">
+    <div class="stats-section-title">Memories & Photos</div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">${withNotes}</div><div class="stat-lbl">Memories written</div></div>
+      <div class="stat-item"><div class="stat-num">${totalPhotos}</div><div class="stat-lbl">Photos taken</div></div>
+    </div>`;
+
+  // Top rated beaches
+  const rated = visited
+    .filter(b => visitedData[b.id]?.rating)
+    .sort((a, b) => (visitedData[b.id].rating) - (visitedData[a.id].rating))
+    .slice(0, 5);
+  body += `<hr class="stats-divider"><div class="stats-section-title">Our Favorite Beaches</div>`;
+  if (rated.length === 0) {
+    body += `<div class="stats-empty">Rate a beach to see your favorites here</div>`;
+  } else {
+    rated.forEach(b => {
+      body += `<div class="stats-top-item">${starsHtml(visitedData[b.id].rating, 'readonly')}<span>${b.name}</span></div>`;
+    });
+  }
+
+  document.getElementById('stats-body').innerHTML = body;
+  document.getElementById('stats-overlay').classList.add('show');
+}
+
+function closeStats() {
+  document.getElementById('stats-overlay').classList.remove('show');
+}
+
+function statsOverlayClick(e) {
+  if (e.target === document.getElementById('stats-overlay')) closeStats();
 }
 
 // ── MEMORY MODAL ──
@@ -1769,6 +1998,9 @@ window.saveMemory           = saveMemory;
 window.openLightbox         = openLightbox;
 window.showCS               = showCS;
 window.csOverlayClick       = csOverlayClick;
+window.showStats            = showStats;
+window.closeStats           = closeStats;
+window.statsOverlayClick    = statsOverlayClick;
 window.openDrawer           = openDrawer;
 window.closeDrawer          = closeDrawer;
 window.closePhotoPrompt     = closePhotoPrompt;
