@@ -940,6 +940,139 @@
     color: var(--text-muted);
     letter-spacing: 0.06em;
   }
+
+  /* ── DRAWER TOGGLE BUTTON ── */
+  #drawer-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 10px;
+    margin-right: 4px;
+    flex-shrink: 0;
+    gap: 4px;
+  }
+
+  #drawer-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--cream);
+    border-radius: 1px;
+  }
+
+  /* ── DRAWER OVERLAY ── */
+  #drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30,58,47,0.4);
+    z-index: 2999;
+  }
+
+  #drawer-overlay.show { display: block; }
+
+  /* ── PHOTO PROMPT ── */
+  .photo-prompt-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30,58,47,0.45);
+    z-index: 7000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-prompt-overlay.show { display: flex; }
+
+  .photo-prompt-card {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 28px 32px;
+    text-align: center;
+    max-width: 300px;
+    width: 90vw;
+  }
+
+  .photo-prompt-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--forest);
+    margin-bottom: 6px;
+  }
+
+  .photo-prompt-msg {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .photo-prompt-actions { display: flex; gap: 10px; justify-content: center; }
+
+  .photo-prompt-btn {
+    padding: 9px 20px;
+    border-radius: 5px;
+    font-family: 'Jost', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--cream-dark);
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.18s;
+  }
+
+  .photo-prompt-btn.primary {
+    background: var(--forest);
+    color: var(--cream);
+    border-color: var(--forest);
+  }
+
+  .photo-prompt-btn.primary:hover { background: var(--forest-mid); }
+
+  #photo-prompt-input { display: none; }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    #drawer-toggle { display: flex; }
+
+    .header-brand {
+      border-right: none;
+      padding: 0 12px 0 4px;
+    }
+
+    .header-brand h1 { font-size: 17px; }
+    .header-subtitle { display: none; }
+    .header-nav { display: none; }
+
+    .header-progress {
+      padding: 0 12px;
+      gap: 10px;
+    }
+
+    .progress-big { font-size: 22px; }
+    .progress-sep, .progress-total { font-size: 16px; }
+    .progress-bar-wrap { display: none; }
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 64px;
+      height: calc(100% - 64px);
+      z-index: 3000;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      box-shadow: 4px 0 20px rgba(30,58,47,0.2);
+    }
+
+    .sidebar.open { transform: translateX(0); }
+  }
 </style>
 </head>
 <body>
@@ -1014,6 +1147,9 @@
 
 <header>
   <div class="header-brand">
+    <button id="drawer-toggle" onclick="openDrawer()" aria-label="Open beach list">
+      <span></span><span></span><span></span>
+    </button>
     <div>
       <h1>Aadi <em>&amp;</em> Joe's <em>Beach Tracker</em></h1>
       <span class="header-subtitle">Maine · Summer 2026</span>
@@ -1069,6 +1205,22 @@
 </div>
 
 <div id="toast"></div>
+
+<!-- Drawer overlay -->
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- Photo prompt modal -->
+<div class="photo-prompt-overlay" id="photo-prompt" onclick="photoPromptOverlayClick(event)">
+  <div class="photo-prompt-card">
+    <div class="photo-prompt-name" id="photo-prompt-name">Beach Name</div>
+    <div class="photo-prompt-msg">Add a photo to remember this visit?</div>
+    <div class="photo-prompt-actions">
+      <button class="photo-prompt-btn primary" onclick="document.getElementById('photo-prompt-input').click()">📷 Add Photo</button>
+      <button class="photo-prompt-btn" onclick="closePhotoPrompt()">Skip</button>
+    </div>
+    <input type="file" id="photo-prompt-input" accept="image/*"/>
+  </div>
+</div>
 
 
 <!-- Firebase via ES module -->
@@ -1154,6 +1306,35 @@ let map           = null;
 let modalBeachId  = null;
 let pendingFiles  = [];
 let firestoreUnsub = null;
+let photoPromptBeachId = null;
+
+// ── DRAWER ──
+function openDrawer() {
+  document.querySelector('.sidebar').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('show');
+}
+
+function closeDrawer() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('show');
+}
+
+// ── PHOTO PROMPT ──
+function showPhotoPrompt(id) {
+  photoPromptBeachId = id;
+  const beach = BEACHES.find(b => b.id === id);
+  document.getElementById('photo-prompt-name').textContent = beach.name;
+  document.getElementById('photo-prompt').classList.add('show');
+}
+
+function closePhotoPrompt() {
+  document.getElementById('photo-prompt').classList.remove('show');
+  photoPromptBeachId = null;
+}
+
+function photoPromptOverlayClick(e) {
+  if (e.target === document.getElementById('photo-prompt')) closePhotoPrompt();
+}
 
 // ── SYNC DOT ──
 function setSyncStatus(s) {
@@ -1189,6 +1370,7 @@ async function toggleVisited(id) {
     } else {
       await setDoc(doc(db, 'visits', String(id)), { visitedAt: new Date().toISOString(), note: '', photos: [] });
       showToast('✓ Marked as visited');
+      showPhotoPrompt(id);
     }
     setSyncStatus('synced');
   } catch(e) {
@@ -1262,6 +1444,35 @@ uploadArea.addEventListener('drop', e => {
     pendingFiles.push(file);
     addPreviewFromUrl(file._previewUrl, false);
   });
+});
+
+document.getElementById('photo-prompt-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file || !photoPromptBeachId) return;
+  const id = photoPromptBeachId;
+  closePhotoPrompt();
+  setSyncStatus('syncing');
+  showToast('Uploading photo…');
+  try {
+    const storageRef = ref(storage, `beaches/${id}/${Date.now()}_${file.name}`);
+    const task = uploadBytesResumable(storageRef, file);
+    const url = await new Promise((resolve, reject) => {
+      task.on('state_changed', null, reject, async () => resolve(await getDownloadURL(task.snapshot.ref)));
+    });
+    const existing = visitedData[id]?.photos || [];
+    await setDoc(doc(db, 'visits', String(id)), {
+      visitedAt: visitedData[id]?.visitedAt || new Date().toISOString(),
+      note: visitedData[id]?.note || '',
+      photos: [...existing, url]
+    });
+    setSyncStatus('synced');
+    showToast('Photo saved ✓');
+  } catch(err) {
+    setSyncStatus('error');
+    showToast('Photo upload failed');
+    console.error(err);
+  }
+  e.target.value = '';
 });
 
 async function saveMemory() {
@@ -1409,6 +1620,7 @@ function focusBeach(id) {
   map.setView([b.lat, b.lng], Math.max(map.getZoom(), 11), { animate: true });
   markers[id].openPopup();
   renderList();
+  if (window.innerWidth <= 768) closeDrawer();
 }
 
 function scrollListToBeach(id) {
@@ -1480,15 +1692,19 @@ onAuthStateChanged(auth, user => {
 });
 
 // ── EXPOSE TO HTML ──
-window.toggleVisited     = toggleVisited;
-window.focusBeach        = focusBeach;
-window.openMemoryModal   = openMemoryModal;
-window.closeMemoryModal  = closeMemoryModal;
-window.modalOverlayClick = modalOverlayClick;
-window.saveMemory        = saveMemory;
-window.openLightbox      = openLightbox;
-window.showCS            = showCS;
-window.csOverlayClick    = csOverlayClick;
+window.toggleVisited        = toggleVisited;
+window.focusBeach           = focusBeach;
+window.openMemoryModal      = openMemoryModal;
+window.closeMemoryModal     = closeMemoryModal;
+window.modalOverlayClick    = modalOverlayClick;
+window.saveMemory           = saveMemory;
+window.openLightbox         = openLightbox;
+window.showCS               = showCS;
+window.csOverlayClick       = csOverlayClick;
+window.openDrawer           = openDrawer;
+window.closeDrawer          = closeDrawer;
+window.closePhotoPrompt     = closePhotoPrompt;
+window.photoPromptOverlayClick = photoPromptOverlayClick;
 </script>
 </body>
 </html>
