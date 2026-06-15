@@ -957,6 +957,20 @@
   .popup-header .stars-readonly .star        { color:rgba(255,255,255,0.3); }
   .popup-header .stars-readonly .star.filled { color:#e8c870; }
 
+  .beach-visit-date {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  .popup-visit-date {
+    font-size: 10px;
+    color: var(--sage);
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+
   /* ── DRAWER TOGGLE BUTTON ── */
   #drawer-toggle {
     display: none;
@@ -1545,6 +1559,11 @@ function haversineMiles(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
+function formatVisitDate(isoString) {
+  if (!isoString) return '';
+  return new Date(isoString).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
 function starsHtml(rating, mode = 'readonly') {
   const cls = mode === 'mini' ? 'stars-mini' : 'stars-readonly';
   const stars = [1,2,3,4,5].map(n =>
@@ -1858,9 +1877,10 @@ function renderList() {
     const firstPhoto = data?.photos?.[0];
     const thumbHtml  = firstPhoto ? `<img class="beach-thumb" src="${firstPhoto}" alt="" onclick="event.stopPropagation();openLightbox('${firstPhoto}')">` : '';
     const miniStars  = (data?.rating) ? starsHtml(data.rating, 'mini') : '';
+    const visitDateHtml = data?.visitedAt ? `<div class="beach-visit-date">Visited ${formatVisitDate(data.visitedAt)}</div>` : '';
     return `<div class="beach-item${activePopupId === b.id ? ' active' : ''}" data-id="${b.id}" onclick="focusBeach(${b.id})">
       <div class="check-circle${isVisited(b.id) ? ' checked' : ''}" onclick="event.stopPropagation();toggleVisited(${b.id})"><div class="checkmark"></div></div>
-      <div class="beach-info"><div class="beach-name">${b.name}</div><div class="beach-meta">${b.town} &middot; ${b.type}</div>${miniStars}</div>
+      <div class="beach-info"><div class="beach-name">${b.name}</div><div class="beach-meta">${b.town} &middot; ${b.type}</div>${miniStars}${visitDateHtml}</div>
       ${thumbHtml}
       <div class="type-dot ${b.type}"></div>
     </div>`;
@@ -1885,7 +1905,8 @@ function popupHtml(beach) {
   const noteHtml  = data.note ? `<div class="popup-memory-note">${data.note}</div>` : '';
   const logBtn    = v ? `<button class="popup-btn log-memory" onclick="openMemoryModal(${beach.id})">✏ Edit memory & photos</button>` : '';
   const ratingHtml = (v && data.rating) ? starsHtml(data.rating, 'readonly') : '';
-  return `<div class="popup-header"><div class="popup-beach-name">${beach.name}</div><div class="popup-town">${beach.town}</div>${ratingHtml}</div>
+  const visitDateHtml = (v && data.visitedAt) ? `<div class="popup-visit-date">Visited ${formatVisitDate(data.visitedAt)}</div>` : '';
+  return `<div class="popup-header"><div class="popup-beach-name">${beach.name}</div><div class="popup-town">${beach.town}</div>${visitDateHtml}${ratingHtml}</div>
     ${photosHtml}
     <div class="popup-body"><div class="popup-tags"><span class="popup-tag ${beach.type}">${beach.type}</span>${tagHtml}</div><div class="popup-notes">${beach.notes}</div>${noteHtml}</div>
     <button class="popup-btn ${v?'mark-unvisited':'mark-visited'}" onclick="toggleVisited(${beach.id})">${v?'✓ Visited — click to unmark':'+ Mark as visited'}</button>
