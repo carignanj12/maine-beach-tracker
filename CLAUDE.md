@@ -8,22 +8,37 @@ Maine Beach Tracker is a personal two-user web app (Aadi & Joe) for logging beac
 
 ## Build & Deployment
 
-There is **no build process**. The entire app is a single `index.html` file (~2010 lines) with embedded CSS and JavaScript.
+There is **no build process**. The app is `index.html` (embedded CSS + JS) plus three supporting files: `manifest.json`, `sw.js`, and `icons/` (PNG app icons).
 
-- **Run locally:** Open `index.html` in a browser, or serve with `npx serve .` / `python -m http.server`
+- **Run locally:** Serve with `npx serve .` or `python -m http.server` — must be HTTP, not `file://` (required for PWA/service worker)
 - **Deploy:** Push to `main` branch — GitHub Pages auto-deploys from `carignanj12/maine-beach-tracker`
 - **Live URL:** `https://carignanj12.github.io/maine-beach-tracker/`
 
 ## Architecture
 
-**Single-file SPA** — all HTML, CSS, and JS live in `index.html`. There are no other source files, no bundler, no package.json. Firebase SDK is loaded from CDN via ES module imports (`<script type="module">`).
+**Single-file SPA** — all HTML, CSS, and JS live in `index.html`. No bundler, no package.json. Firebase SDK is loaded from CDN via ES module imports (`<script type="module">`).
+
+Supporting files (all in repo root):
+- `manifest.json` — PWA web app manifest
+- `sw.js` — service worker (app shell + CDN caching; Firebase = network-only)
+- `icons/icon-192.png`, `icons/icon-512.png` — app icons (regenerate via Python if needed, no PIL required)
 
 ### Firebase Services
 
-- **Firestore** — `visits` collection, one document per beach (keyed by beach id as string). Schema: `{ visitedAt: ISO8601, note: string, rating: number|null, photos: [urls] }`
+- **Firestore** — `visits` collection, one document per beach (keyed by beach id as string). Schema: `{ visitedAt: ISO8601, note: string, rating: number|null, photos: [urls] }`. Initialized with `initializeFirestore(fbApp, { localCache: persistentLocalCache() })` — writes queue locally when offline and sync automatically on reconnect.
 - **Cloud Storage** — photos at `beaches/{beachId}/{timestamp}_{filename}`
 - **Auth** — Google Sign-In only; email allowlist enforced in code (`ALLOWED_EMAILS` constant near top of `<script type="module">`)
 - **Firebase version:** 10.12.0 (loaded from `gstatic.com`)
+
+### PWA
+
+- **Manifest** — `manifest.json`: standalone display, `#1e3a2f` theme/background, 192 + 512px icons
+- **Service Worker** — `sw.js` runs two caches:
+  - `beach-shell-v1`: pre-cached at install — `index.html`, `manifest.json`, both icons
+  - `beach-cdn-v1`: runtime cache-first — Leaflet, Google Fonts, CartoDB map tiles
+  - Firebase domains (`gstatic.com/firebasejs`, `firestore.googleapis.com`, etc.) always bypass the cache
+- **Cache versioning** — bump `SHELL_CACHE` / `CDN_CACHE` names in `sw.js` when deploying breaking changes to force invalidation
+- **Install on iOS** — Safari only → Share → Add to Home Screen. Chrome on iOS will not show the install prompt.
 
 ### Data Flow
 
