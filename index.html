@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e3a2f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Beach Tracker">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Aadi & Joe's Beach Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -1393,7 +1399,7 @@
 <!-- Firebase via ES module -->
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection }
+import { initializeFirestore, persistentLocalCache, doc, setDoc, deleteDoc, onSnapshot, collection }
                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL }
                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
@@ -1416,7 +1422,7 @@ const firebaseConfig = {
 };
 
 const fbApp    = initializeApp(firebaseConfig);
-const db       = getFirestore(fbApp);
+const db       = initializeFirestore(fbApp, { localCache: persistentLocalCache() });
 const storage  = getStorage(fbApp);
 const auth     = getAuth(fbApp);
 const provider = new GoogleAuthProvider();
@@ -1953,6 +1959,10 @@ function showToast(msg) {
 }
 
 // ── MAP INIT (runs immediately on DOMContentLoaded, before auth) ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(console.error);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   map = L.map('map', { center: [44.1, -69.3], zoom: 8, zoomControl: true });
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
